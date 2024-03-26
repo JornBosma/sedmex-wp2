@@ -4,6 +4,9 @@
 # exclude 3rd-party code, freely available from file exchange
 /src/file_exchange/*
 
+# exclude macOS-specific file
+/.DS_Store
+
 # exclude data and results from source control by default
 /dataRaw/*
 /data/*

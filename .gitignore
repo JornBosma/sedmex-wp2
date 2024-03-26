@@ -6,11 +6,8 @@
 
 # exclude data and results from source control by default
 /dataRaw/*
-/data/elevation/*
-/data/sediment/*
-/data/water/*
-/results/figures/*
-/results/output/*
+/data/*
+/results/*
 
 # keep unfinished written material out of public sight
 /docs/manuscript/*

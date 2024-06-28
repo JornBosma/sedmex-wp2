@@ -11,6 +11,7 @@
 /dataRaw/*
 /data/*
 /results/*
+/results_old/*
 
 # keep unfinished written material out of public sight
 /docs/manuscript/*

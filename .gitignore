@@ -2,7 +2,7 @@
 /bin/external/*
 
 # exclude 3rd-party code, freely available from file exchange
-/src/file_exchange/*
+/code/file_exchange/*
 
 # exclude macOS-specific file
 /.DS_Store

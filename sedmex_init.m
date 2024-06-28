@@ -20,8 +20,8 @@ set(groot, 'DefaultAxesFontSize', fontsize)
 % set(groot, 'DefaultAxesTickLabelInterpreter', 'latex')
 % set(groot, 'DefaultLegendInterpreter', 'latex')
 % set(groot, 'DefaultLegendLocation', 'northwest')
-% set(groot, 'DefaultLegendBox', 'off')
-set(groot, 'DefaultAxesBox', 'off')
+set(groot, 'DefaultLegendBox', 'on')
+set(groot, 'DefaultAxesBox', 'on')
 
 set(groot, 'defaultUicontrolFontName', 'Arial')
 set(groot, 'defaultUitableFontName', 'Arial')
@@ -64,6 +64,12 @@ cbf.custom12 = ...
     0.121568627450980	0.470588235294118	0.705882352941177; ...
     0.200000000000000	0.627450980392157	0.172549019607843];
 cbf.grey = [0.5, 0.5, 0.5];
+% cmap = crameri('batlowK');
+% % cmap = brewermap(256, 'RdYlBu');
+% numColors = size(cmap, 1);
+% indices = round(linspace(1, numColors, 6));
+% cbf.six = cmap(indices, :);
+cbf.six = brewermap(256, 'Accent');
 
 % tidal datums wrt NAP @ PHZ (waterinfo)
 % PHZ.NAP = 0; % local reference datum [NAP+m]
@@ -71,28 +77,6 @@ PHZ.HWS = 0.81; % typical high water spring level [NAP+m] (visually determined f
 PHZ.LWS = -1.07; % typical low water spring level [NAP+m] (visually determined from waterinfo)
 PHZ.HWlim = 1.95; % upper limit normal water-level range [NAP+m]
 PHZ.LWlim = -1.17;  % upper limit normal water-level range [NAP+m]
-
-% tidal datums during SEDMEX: Woerdman et al., 2022
-% SEDMEX.MHW = 0.68; % mean high water [NAP+m]
-% SEDMEX.MLW = -0.57; % mean low water [NAP+m]
-% SEDMEX.MWL = 0.16; % mean water level [NAP+m]
-% SEDMEX.MaxWL = 1.34; % maximum water level [NAP+m]
-% SEDMEX.MinWL = -1.07; % minimum water level [NAP+m]
-% SEDMEX.MSTR = 1.77; % mean spring tidal range [NAP+m]
-% SEDMEX.MNTR = 0.92; % mean neap tidal range [NAP+m]
-% SEDMEX.MTR = 1.25; % mean tidal range [NAP+m]
-% SEDMEX.MaxTR = 1.82; % maximum tidal range [NAP+m]
-% SEDMEX.MinTR = 0.55; % minimum tidal range [NAP+m]
-
-% tidal datums during SEDMEX
-SEDMEX.MeanHW = 0.684; % mean high water [NAP+m]
-SEDMEX.MeanLW = -0.609; % mean low water [NAP+m]
-SEDMEX.MeanSL = 0.139; % mean water level [NAP+m]
-SEDMEX.MaxWL = 1.35; % maximum water level [NAP+m]
-SEDMEX.MinWL = -1.06; % minimum water level [NAP+m]
-SEDMEX.MeanTR = 1.29; % mean tidal range [NAP+m]
-SEDMEX.MaxTR = 1.85; % maximum tidal range [NAP+m]
-SEDMEX.MinTR = 0.53; % minimum tidal range [NAP+m]
 
 % tidal datums during monitoring period (2019 - 2022)
 PHZ.MeanHW = 0.664; % mean high water [NAP+m]
@@ -120,6 +104,47 @@ PHZ.xTick = 114000:1e3:118000;
 PHZ.yTick = 558000:1e3:561000;
 PHZ.xLimHook = [1.1695e+05, 1.1765e+05]; % spit hook zoom-in
 PHZ.yLimHook = [5.5976e+05, 5.6040e+05];
+
+% tidal datums during SEDMEX: Woerdman et al., 2022
+% SEDMEX.MHW = 0.68; % mean high water [NAP+m]
+% SEDMEX.MLW = -0.57; % mean low water [NAP+m]
+% SEDMEX.MWL = 0.16; % mean water level [NAP+m]
+% SEDMEX.MaxWL = 1.34; % maximum water level [NAP+m]
+% SEDMEX.MinWL = -1.07; % minimum water level [NAP+m]
+% SEDMEX.MSTR = 1.77; % mean spring tidal range [NAP+m]
+% SEDMEX.MNTR = 0.92; % mean neap tidal range [NAP+m]
+% SEDMEX.MTR = 1.25; % mean tidal range [NAP+m]
+% SEDMEX.MaxTR = 1.82; % maximum tidal range [NAP+m]
+% SEDMEX.MinTR = 0.55; % minimum tidal range [NAP+m]
+
+% tidal datums during SEDMEX
+SEDMEX.MeanHW = 0.684; % mean high water [NAP+m]
+SEDMEX.MeanLW = -0.609; % mean low water [NAP+m]
+SEDMEX.MeanSL = 0.139; % mean water level [NAP+m]
+SEDMEX.MaxWL = 1.35; % maximum water level [NAP+m]
+SEDMEX.MinWL = -1.06; % minimum water level [NAP+m]
+SEDMEX.MeanTR = 1.29; % mean tidal range [NAP+m]
+SEDMEX.MaxTR = 1.85; % maximum tidal range [NAP+m]
+SEDMEX.MinTR = 0.53; % minimum tidal range [NAP+m]
+
+% SEDMEX instrument coordinates
+SEDMEX.L2C1 = [117158, 559855];  % L2C1KELLER
+SEDMEX.L2C2 = [117193, 559822];  % L2C2VEC
+SEDMEX.L2C4 = [117197, 559818];  % L2C4VEC
+SEDMEX.L2C10 = [117235, 559781]; % L2C10VEC
+
+SEDMEX.L1C1 = [117421, 560054];  % L1C1VEC
+SEDMEX.L2C5 = [117198, 559815];  % L2C5SONTEK1
+SEDMEX.L3C1 = [116839, 559536];  % L3C1VEC
+SEDMEX.L4C1 = [116103, 558945];  % L4C1VEC
+SEDMEX.L5C1 = [115670, 558604];  % L5C1VEC
+SEDMEX.L6C1 = [115402, 558225];  % L6C1VEC
+
+SEDMEX.L1C2 = [117445, 560045];  % L1C2OSSI
+SEDMEX.L2C9 = [117222, 559793];  % L2C9OSSI
+SEDMEX.L4C3 = [116125, 558917];  % L4C3OSSI
+SEDMEX.L5C2 = [115716, 558560];  % L5C2OSSI
+SEDMEX.L6C2 = [115470, 558176];  % L6C2OSSI
 
 % ready
 return

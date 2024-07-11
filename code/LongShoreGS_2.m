@@ -4,6 +4,7 @@ clear
 clc
 
 [~, fontsize, ~, ~, ~] = sedmex_init;
+% fontsize = 22; % ultra-wide screen
 
 folderPath = [filesep 'Volumes' filesep 'T7 Shield' filesep 'DataDescriptor' filesep];
 locsY = {'SL', 'S', 'L2' 'L3.5', 'L4', 'T', 'L6'};
@@ -177,7 +178,7 @@ h1.XLabel = '';
 h1.YLabel = '';
 h1.FontSize = fontsize;
 h1.CellLabelColor = 'none';
-h1.GridVisible = 'off';
+h1.GridVisible = 'on';
 h1.MissingDataColor = 'w';
 h1.MissingDataLabel = 'no data';
 
@@ -185,12 +186,18 @@ hs1 = struct(h1);
 ylabel(hs1.Colorbar, 'M_G (mm)');
 
 
+%%
+data = h1.ColorDisplayData;
+data = data(2:end, [1,2]);
+meanData = mean(data, 2)
+
+
 %% Visualisation: longshore std
 f2 = figure('Position', [944, 957, 757, 430]);
 
 h2 = heatmap(LongshoreN1, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Sorting');
-colormap(h2, brewermap([],"YlGnBu"))
-clim([1.4, 3])
+colormap(h2, brewermap([],"BuPu"))
+clim([1, 3])
 
 % h2.Title = ['Sorting: NAP ', num2str(mean(LongshoreN.zNAP_m), '%.1f'), ' m'];
 h2.Title = [];
@@ -201,7 +208,7 @@ h2.XLabel = '';
 h2.YLabel = '';
 h2.FontSize = fontsize;
 h2.CellLabelColor = 'none';
-h2.GridVisible = 'off';
+h2.GridVisible = 'on';
 h2.MissingDataColor = 'w';
 h2.MissingDataLabel = 'no data';
 
@@ -262,7 +269,7 @@ h3.XLabel = '';
 h3.YLabel = '';
 h3.FontSize = fontsize;
 h3.CellLabelColor = 'none';
-h3.GridVisible = 'off';
+h3.GridVisible = 'on';
 h3.MissingDataColor = 'w';
 h3.MissingDataLabel = 'no data';
 
@@ -270,12 +277,18 @@ hs3 = struct(h3);
 ylabel(hs3.Colorbar, 'M_G (mm)');
 
 
+%%
+data = h3.ColorDisplayData;
+data = data(2:end, [1,2]);
+meanData = mean(data, 2)
+
+
 %% Visualisation: longshore std
 f4 = figure('Position', [1702, 957, 757, 430]);
 
 h4 = heatmap(LongshoreN2, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Sorting');
-colormap(h4, brewermap([],"YlGnBu"))
-clim([1.4, 3])
+colormap(h4, brewermap([],"BuPu"))
+clim([1, 3])
 
 % h4.Title = ['Sorting: NAP ', num2str(mean(LongshoreN.zNAP_m), '%.1f'), ' m'];
 h4.Title = [];
@@ -286,7 +299,7 @@ h4.XLabel = '';
 h4.YLabel = '';
 h4.FontSize = fontsize;
 h4.CellLabelColor = 'none';
-h4.GridVisible = 'off';
+h4.GridVisible = 'on';
 h4.MissingDataColor = 'w';
 h4.MissingDataLabel = 'no data';
 
@@ -295,7 +308,7 @@ ylabel(hs4.Colorbar, '\sigma_G');
 
 
 %% Visualisation: longshore mean
-f5 = figure('Position', [699, 1665, 1279, 628]);
+f5 = figure('Position', [740, 1665, 1279, 628]);
 tiledlayout(2,2, 'TileSpacing','compact')
 
 nexttile
@@ -311,7 +324,7 @@ h5a.XLabel = '';
 h5a.YLabel = '';
 h5a.FontSize = fontsize;
 h5a.CellLabelColor = 'none';
-h5a.GridVisible = 'off';
+h5a.GridVisible = 'on';
 h5a.MissingDataColor = 'w';
 h5a.ColorbarVisible = 'off';
 
@@ -329,7 +342,7 @@ h5b.XLabel = '';
 h5b.YLabel = '';
 h5b.FontSize = fontsize;
 h5b.CellLabelColor = 'none';
-h5b.GridVisible = 'off';
+h5b.GridVisible = 'on';
 h5b.MissingDataColor = 'w';
 h5b.MissingDataLabel = 'no data';
 
@@ -339,8 +352,8 @@ ylabel(hs5b.Colorbar, 'M_G (mm)');
 
 nexttile
 h5c = heatmap(LongshoreN1, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Sorting');
-colormap(h5c, brewermap([],"YlGnBu"))
-clim([1.4, 3])
+colormap(h5c, brewermap([],"BuPu"))
+clim([1, 3])
 
 h5c.Title = [];
 h5c.YDisplayData = locsY(1:end);
@@ -350,15 +363,15 @@ h5c.XLabel = '';
 h5c.YLabel = '';
 h5c.FontSize = fontsize;
 h5c.CellLabelColor = 'none';
-h5c.GridVisible = 'off';
+h5c.GridVisible = 'on';
 h5c.MissingDataColor = 'w';
 h5c.ColorbarVisible = 'off';
 
 
 nexttile
 h5d = heatmap(LongshoreN2, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Sorting');
-colormap(h5d, brewermap([],"YlGnBu"))
-clim([1.4, 3])
+colormap(h5d, brewermap([],"BuPu"))
+clim([1, 3])
 
 h5d.Title = [];
 h5d.YDisplayData = locsY(1:end);
@@ -368,9 +381,137 @@ h5d.XLabel = '';
 h5d.YLabel = '';
 h5d.FontSize = fontsize;
 h5d.CellLabelColor = 'none';
-h5d.GridVisible = 'off';
+h5d.GridVisible = 'on';
 h5d.MissingDataColor = 'w';
 h5d.MissingDataLabel = 'no data';
 
 hs5d = struct(h5d);
 ylabel(hs5d.Colorbar, '\sigma_G');
+
+
+%% Visualisation: Grain-size variability
+f6 = figure('Position', [740, 1665, 1279, 628]);
+tiledlayout(2, 8, 'TileSpacing','compact')
+
+nexttile(1, [1 3])
+h6a = heatmap(LongshoreN1, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Mean_mm');
+colormap(h6a, brewermap([],"YlOrRd"))
+clim([.25, 1.8])
+
+h6a.Title = [];
+h6a.YDisplayData = locsY(1:end);
+h6a.YDisplayLabels = locsYnew(1:end);
+h6a.XDisplayLabels = repmat({''}, 1, length(h6a.XDisplayData));
+h6a.XLabel = '';
+h6a.YLabel = '';
+h6a.FontSize = fontsize;
+h6a.CellLabelColor = 'none';
+h6a.GridVisible = 'on';
+h6a.MissingDataColor = 'w';
+h6a.ColorbarVisible = 'off';
+
+nexttile(4, [1 1])
+heatdata = flipud(h6a.ColorDisplayData);
+meanT = mean(heatdata, 2, 'omitmissing');
+stdT = std(heatdata, 0, 2, 'omitmissing');
+errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
+xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
+ylim([1 7])
+% xlim([0 2])
+xlabel('                   M_G (mm)', 'FontSize',fontsize)
+yticks([])
+
+text(-1, .1, 'NAP +0 m', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
+
+
+nexttile(6, [1 3])
+h6b = heatmap(LongshoreN2, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Mean_mm');
+colormap(h6b, brewermap([],"YlOrRd"))
+clim([.25, 1.8])
+
+h6b.Title = [];
+h6b.YDisplayData = locsY(1:end);
+h6b.YDisplayLabels = repmat({''}, 1, length(h6b.YDisplayData));
+h6b.XDisplayLabels = repmat({''}, 1, length(h6b.XDisplayData));
+h6b.XLabel = '';
+h6b.YLabel = '';
+h6b.FontSize = fontsize;
+h6b.CellLabelColor = 'none';
+h6b.GridVisible = 'on';
+h6b.MissingDataColor = 'w';
+h6b.MissingDataLabel = 'no data';
+
+hs6b = struct(h6b);
+ylabel(hs6b.Colorbar, 'M_G (mm)');
+
+nexttile(5, [1 1])
+heatdata = flipud(h6b.ColorDisplayData);
+meanT = mean(heatdata, 2, 'omitmissing');
+stdT = std(heatdata, 0, 2, 'omitmissing');
+errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
+xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
+ylim([1 7])
+% xlim([0 2])
+yticks([])
+
+text(5, .1, 'NAP –0.8 m', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
+
+
+nexttile(9, [1 3])
+h6c = heatmap(LongshoreN1, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Sorting');
+colormap(h6c, brewermap([],"BuPu"))
+clim([1, 3])
+
+h6c.Title = [];
+h6c.YDisplayData = locsY(1:end);
+h6c.YDisplayLabels = locsYnew(1:end);
+h6c.XDisplayLabels = datetime(h6c.XDisplayLabels, 'Format','dd/MM');
+h6c.XLabel = '';
+h6c.YLabel = '';
+h6c.FontSize = fontsize;
+h6c.CellLabelColor = 'none';
+h6c.GridVisible = 'on';
+h6c.MissingDataColor = 'w';
+h6c.ColorbarVisible = 'off';
+
+nexttile(12, [1 1])
+heatdata = flipud(h6c.ColorDisplayData);
+meanT = mean(heatdata, 2, 'omitmissing');
+stdT = std(heatdata, 0, 2, 'omitmissing');
+errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
+xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
+ylim([1 7])
+% xlim([1 3])
+xlabel('                     \sigma_G', 'FontSize',fontsize)
+yticks([])
+
+
+nexttile(14, [1 3])
+h6d = heatmap(LongshoreN2, 'Date_ddMMyyyy', 'Sample_Identity', 'ColorVariable','Sorting');
+colormap(h6d, brewermap([],"BuPu"))
+clim([1, 3])
+
+h6d.Title = [];
+h6d.YDisplayData = locsY(1:end);
+h6d.YDisplayLabels = repmat({''}, 1, length(h6d.YDisplayData));
+h6d.XDisplayLabels = datetime(h6d.XDisplayLabels, 'Format','dd/MM');
+h6d.XLabel = '';
+h6d.YLabel = '';
+h6d.FontSize = fontsize;
+h6d.CellLabelColor = 'none';
+h6d.GridVisible = 'on';
+h6d.MissingDataColor = 'w';
+h6d.MissingDataLabel = 'no data';
+
+hs6d = struct(h6d);
+ylabel(hs6d.Colorbar, '\sigma_G');
+
+nexttile(13, [1 1])
+heatdata = flipud(h6d.ColorDisplayData);
+meanT = mean(heatdata, 2, 'omitmissing');
+stdT = std(heatdata, 0, 2, 'omitmissing');
+errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
+xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
+ylim([1 7])
+% xlim([1 3])
+yticks([])

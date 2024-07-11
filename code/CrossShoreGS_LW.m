@@ -495,14 +495,14 @@ f5 = figure(Position=[740, 1880, 1719, 413]);
 tiledlayout(1,2, 'TileSpacing','compact')
 
 nexttile
-scatter(zDiff, meanDiff, 100, 'filled', 'MarkerEdgeColor','k')
+scatter(zDiff, meanDiff, 200, 'filled', 'MarkerEdgeColor','k')
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
 xlabel('\Deltaz (m)')
 ylabel('\DeltaM_{G} (mm)')
 
 nexttile
-scatter(zDiff, sortingDiff, 100, 'filled', 'MarkerEdgeColor','k'); hold on
+scatter(zDiff, sortingDiff, 200, 'filled', 'MarkerEdgeColor','k'); hold on
 % plot(zDiff(2, 7), sortingDiff(2, 7), 'rx', 'MarkerSize',20, 'LineWidth',2)
 % plot(x_fit, y_fit, '-r', 'LineWidth', 3); hold off
 % text(.23, -.2, {equationText, rsquaredText}, 'VerticalAlignment','top',...

@@ -17,27 +17,28 @@ else
 end
 Options.LegendPosition = 'westoutside';
 Options.FreqLabelAngle = 120;
-Options.MaxFrequency   = 40;
-Options.nFreq          = 4;
+Options.MaxFrequency   = 48;
+Options.nFreq          = 3;
 Options.nDirections    = 24;
 Options.min_radius     = .1;
-Options.vWinds         = linspace(0, .5, 6);
+Options.vWinds         = linspace(0, .8, 5);
 % Options.nSpeeds        = 6;
 
 Options.TextFontname   = 'Arial';
 Options.TitleString    = [];
-Options.LabLegend      = 'U (m s^{-1})';
+Options.LabLegend      = 'U_d (m s^{-1})';
 Options.LegendVariable = 'u';
 Options.FigColor       = 'w';
 Options.CMap           = mycolormap;
 Options.Gap            = .2;
 Options.EdgeColor      = 'k';
-Options.EdgeWidth      = 2;
+Options.EdgeWidth      = 1.5;
+% Options.GridAlpha      = .2;
 
 % Options.FrequencyFontColor = 'r';
 % Options.FrequencyFontWeight = 'bold';
 % Options.FrequencyFontName = 'Comic Sans MS';
-Options.FrequencyFontSize = fontsize*.6;
+Options.FrequencyFontSize = fontsize*.8;
 Options.FrequencyFontAngle = 'italic';
 
 % Options.AxesFontColor = 'b';

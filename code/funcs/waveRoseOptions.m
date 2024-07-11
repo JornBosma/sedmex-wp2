@@ -16,12 +16,12 @@ else
     Options.LegendType     = 0;
 end
 Options.LegendPosition = 'westoutside';
-Options.FreqLabelAngle = 60;
-Options.MaxFrequency   = 40;
-Options.nFreq          = 4;
+Options.FreqLabelAngle = 140;
+Options.MaxFrequency   = 48;
+Options.nFreq          = 3;
 Options.nDirections    = 24;
 Options.min_radius     = .1;
-Options.vWinds         = linspace(0, .5, 6);
+Options.vWinds         = linspace(0, .4, 5);
 % Options.nSpeeds        = 6;
 
 Options.TextFontname   = 'Arial';
@@ -32,12 +32,12 @@ Options.FigColor       = 'w';
 Options.CMap           = mycolormap;
 Options.Gap            = .2;
 Options.EdgeColor      = 'k';
-Options.EdgeWidth      = 2;
+Options.EdgeWidth      = 1.5;
 
 % Options.FrequencyFontColor = 'r';
 % Options.FrequencyFontWeight = 'bold';
 % Options.FrequencyFontName = 'Comic Sans MS';
-Options.FrequencyFontSize = fontsize*.6;
+Options.FrequencyFontSize = fontsize*.8;
 Options.FrequencyFontAngle = 'italic';
 
 % Options.AxesFontColor = 'b';

@@ -7,7 +7,7 @@ clc
 
 folderPath = [filesep 'Volumes' filesep 'T7 Shield' filesep 'DataDescriptor' filesep];
 locsY = {'SL', 'S', 'L2' 'L3.5', 'L4', 'T', 'L6'};
-locsYnew = {'Lgn', 'L1', 'L2', 'L3.5', 'L4', 'Tmb', 'L6'};
+locsYnew = {'Lgn', 'L0', 'L2', 'L3.5', 'L4', 'Tmb', 'L6'};
 
 
 %% GS_L2
@@ -130,8 +130,8 @@ nexttile(6)
 text(0, .5, '2021-09-21', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
 axis off
 
-heatdata = [h1.ColorData(3,:); h1.ColorData(6,:); h1.ColorData(2,:);...
-    h1.ColorData(1,:); h1.ColorData(5,:); h1.ColorData(4,:)]; % correct sequence
+% heatdata = h1.ColorDisplayData(any(~isnan(h1.ColorDisplayData), 2), :);
+heatdata = flipud(h1.ColorDisplayData);
 meanS = mean(heatdata, 1, 'omitmissing');
 stdS = std(heatdata, 0, 1, 'omitmissing');
 nexttile(1,[1 5])
@@ -145,7 +145,7 @@ xticks([])
 meanT = mean(heatdata, 2, 'omitmissing');
 stdT = std(heatdata, 0, 2, 'omitmissing');
 nexttile(12,[5 1])
-errorbar(meanT, 1.5:6.5, stdT, 'horizontal', '-ok', 'LineWidth',3)
+errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
 xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
 ylim([1 7])
 % xlim([0 1000])
@@ -192,8 +192,7 @@ nexttile(6)
 text(0, .5, '2021-09-28', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
 axis off
 
-heatdata = [h2.ColorData(3,:); h2.ColorData(6,:); h2.ColorData(2,:);...
-    h2.ColorData(1,:); h2.ColorData(5,:); h2.ColorData(4,:)]; % correct sequence
+heatdata = flipud(h2.ColorDisplayData);
 meanS = mean(heatdata, 1, 'omitmissing');
 stdS = std(heatdata, 0, 1, 'omitmissing');
 nexttile(1,[1 5])
@@ -207,7 +206,7 @@ xticks([])
 meanT = mean(heatdata, 2, 'omitmissing');
 stdT = std(heatdata, 0, 2, 'omitmissing');
 nexttile(12,[5 1])
-errorbar(meanT, 1.5:6.5, stdT, 'horizontal', '-ok', 'LineWidth',3)
+errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
 xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
 ylim([1 7])
 % xlim([0 1000])
@@ -255,8 +254,7 @@ nexttile(6)
 text(0, .5, '2021-10-03', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
 axis off
 
-heatdata = [h3.ColorData(3,:); h3.ColorData(1,:); h3.ColorData(4,:);...
-    h3.ColorData(2,:)]; % correct sequence
+heatdata = flipud(h3.ColorDisplayData);
 meanS = mean(heatdata, 1, 'omitmissing');
 stdS = std(heatdata, 0, 1, 'omitmissing');
 nexttile(1,[1 5])
@@ -267,10 +265,10 @@ xlim([1 4])
 ylabel('µm')
 xticks([])
 
-meanT = flipud(mean(heatdata, 2, 'omitmissing'));
-stdT = flipud(std(heatdata, 0, 2, 'omitmissing'));
+meanT = mean(heatdata, 2, 'omitmissing');
+stdT = std(heatdata, 0, 2, 'omitmissing');
 nexttile(12,[5 1])
-errorbar(meanT, [1.5:3.5, 5.5], stdT, 'horizontal', '-ok', 'LineWidth',3)
+errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
 xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
 ylim([1 7])
 % xlim([0 1000])
@@ -310,6 +308,7 @@ colormap(h4, crameri('lajolla'))
 % clim([0, 2000])
 
 h4.Title = [];
+h4.XDisplayLabels = datetime(h4.XDisplayLabels, 'Format','dd/MM');
 h4.YDisplayData = locsY(2:end);
 h4.YDisplayLabels = locsYnew(2:end);
 h4.XLabel = '';
@@ -323,10 +322,10 @@ h4.MissingDataLabel = 'no data';
 
 nexttile(6)
 % text(0, .5, 'NAP -0.00 m', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
-text(-.2, .5, ['NAP ', num2str(mean(LongshoreN.zNAP_m), '%.1f'), ' m'], 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
+text(0, .5, ['NAP ', num2str(mean(LongshoreN.zNAP_m), '%.1f'), ' m'], 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
 axis off
 
-heatdata = h4.ColorDisplayData;
+heatdata = flipud(h4.ColorDisplayData);
 meanT = mean(heatdata, 1, 'omitmissing');
 stdT = std(heatdata, 0, 1, 'omitmissing');
 nexttile(1,[1 5])
@@ -337,8 +336,8 @@ xlim([1 10])
 ylabel('µm')
 xticks([])
 
-meanY = mean(flipud(heatdata), 2, 'omitmissing');
-stdY = std(flipud(heatdata), 0, 2, 'omitmissing');
+meanY = mean(heatdata, 2, 'omitmissing');
+stdY = std(heatdata, 0, 2, 'omitmissing');
 nexttile(12,[5 1])
 errorbar(meanY, 1.5:6.5, stdY, 'horizontal', '-ok', 'LineWidth',3)
 xline(mean(meanY, 'omitmissing'), '--k', 'LineWidth',2)

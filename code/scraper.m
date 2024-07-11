@@ -185,7 +185,7 @@ set(ax(2:8), 'yTickLabel', [])
 set(ax, 'YDir', 'normal')
 set(ax,'xTick', [])
 % set(ax, 'Colormap', crameri('imola'), 'CLim',[1 3])
-set(ax, 'Colormap', brewermap([],"-YlGn"), 'CLim',[1 3])
+set(ax, 'Colormap', brewermap([],"BuPu"), 'CLim',[1.5 3])
 
 % for i = 1:length(ax)
 %     shading(ax(i), 'interp')

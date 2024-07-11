@@ -105,11 +105,15 @@ light
 % Add north arrow
 Narrow(fontsize)
 
+% Add relevant contours
+[~, c1] = contour(B.DEM.X, B.DEM.Y, B.DEM.Z, [SEDMEX.MeanLW, SEDMEX.MeanHW], '-k', 'ShowText','off', 'LineWidth',1);
+[~, c2] = contour(B.DEM.X, B.DEM.Y, B.DEM.Z, [SEDMEX.MinWL, SEDMEX.MaxWL], ':r', 'ShowText','off', 'LineWidth',2);
+
 % Instrument locations
 s1 = scatter(ADV(:,1), ADV(:,2), 150, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceColor','r');
 % text(ADV([1:2 5],1)+40, ADV([1:2 5],2)+20, trackNames([1:2 5]), 'FontSize',fontsize*.8)
 % text(ADV(3:4,1)+70, ADV(3:4,2), trackNames(3:4), 'FontSize',fontsize*.8)
-text(ADV(:,1)+70, ADV(:,2), trackNames, 'FontSize',fontsize*.8)
+text(ADV(:,1)+60, ADV(:,2)-50, trackNames, 'FontSize',fontsize*.8, 'FontWeight','bold')
 
 % scatter(SEDMEX.L3C1(1), SEDMEX.L3C1(2), 150, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceColor','m')
 % text(SEDMEX.L3C1(1)+70, SEDMEX.L3C1(2)-80, 'L3', 'FontSize',fontsize*.8)
@@ -117,13 +121,11 @@ text(ADV(:,1)+70, ADV(:,2), trackNames, 'FontSize',fontsize*.8)
 % Sampling locations
 s2 = scatter(GS_LS.xRD_m, GS_LS.yRD_m, 100, 'filled', 'MarkerEdgeColor','k',...
     'MarkerFaceColor','y', 'Marker','v');
-text(GS_LS.xRD_m-140, GS_LS.yRD_m-60, sampleNames, 'FontSize',fontsize*.7)
-
-% Add relevant contours
-[~, c1] = contour(B.DEM.X, B.DEM.Y, B.DEM.Z, [SEDMEX.MinWL, SEDMEX.MaxWL], '-k', 'ShowText','off', 'LineWidth',1);
+text(GS_LS.xRD_m-120, GS_LS.yRD_m-60, sampleNames, 'FontSize',fontsize*.8)
 
 % Legend
-lgnd = legend([c1, s1, s2], {'beach face', 'instruments', 'samples'}, 'Position',[0.1044, 0.4664, 0.1093, 0.1321]);
+% lgnd = legend([c1, s1, s2], {'beach face', 'instruments', 'samples'}, 'Position',[0.1044, 0.4664, 0.1093, 0.1321], 'FontSize',fontsize);
+lgnd = legend([c1, c2, s1, s2], {'beach face', 'max tidal range', 'instruments', 'samples'}, 'Position',[0.105, 0.4664, 0.1093, 0.1321], 'FontSize',fontsize);
 
 % Add relevant contours
 % [~, c1] = contour(B.DEM.X, B.DEM.Y, B.DEM.Z, [SEDMEX.MeanHW, SEDMEX.MeanHW], '-g', 'ShowText','off', 'LineWidth',2);

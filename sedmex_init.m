@@ -69,7 +69,7 @@ cbf.grey = [0.5, 0.5, 0.5];
 % numColors = size(cmap, 1);
 % indices = round(linspace(1, numColors, 6));
 % cbf.six = cmap(indices, :);
-cbf.six = brewermap(256, 'Accent');
+cbf.six = brewermap(9, 'Set1');
 
 % tidal datums wrt NAP @ PHZ (waterinfo)
 % PHZ.NAP = 0; % local reference datum [NAP+m]
@@ -98,12 +98,14 @@ PHZ.AHW = 2.25; % annual (1/1y) high water level [NAP+m]
 PHZ.LAT = -1.17; % lowest astronomical tide [NAP+m]
 
 % axis limits and ticks
-PHZ.xLim = [1.148e+05, 1.1805e+05]; % PHZD
-PHZ.yLim = [5.5775e+05, 5.6065e+05];
+PHZ.xLim = [114800, 118050]; % RD-2008
+PHZ.yLim = [557750, 560650];
+PHZ.xLimWGS = [53.005205, 53.031496]; % WGS-84
+PHZ.yLimWGS = [4.788338, 4.836422];
 PHZ.xTick = 114000:1e3:118000;
 PHZ.yTick = 558000:1e3:561000;
-PHZ.xLimHook = [1.1695e+05, 1.1765e+05]; % spit hook zoom-in
-PHZ.yLimHook = [5.5976e+05, 5.6040e+05];
+PHZ.xLimHook = [116950, 117650]; % spit hook zoom-in
+PHZ.yLimHook = [559760, 560400];
 
 % tidal datums during SEDMEX: Woerdman et al., 2022
 % SEDMEX.MHW = 0.68; % mean high water [NAP+m]

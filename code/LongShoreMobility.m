@@ -1117,7 +1117,7 @@ meanCol = mean(totalBedload_gross.Variables, 2);
 % Add mean row and column to the table
 totalBedload_gross{'Mean', :} = meanRow;
 totalBedload_gross.Mean = [meanCol; mean(meanRow)];
-stop
+
 clearvars Mg d10 d50 d90 i meanCol meanRow time_seconds
 
 
@@ -1809,8 +1809,9 @@ for i = 1:length(instruLocs)
 
     % Create the KDE plot
     plot(xi, smoothed_f, 'LineWidth',4, 'DisplayName',instruLocs{i}, 'Color',newcolors(i,:))
-    xline(peak_location, 'LineStyle','-', 'LineWidth',4, 'Color',newcolors(i,:), 'HandleVisibility','off')
-    xline(meanValue, 'LineStyle','--', 'LineWidth',4, 'Color',newcolors(i,:), 'HandleVisibility','off')
+    % xline(peak_location, 'LineStyle','-', 'LineWidth',4, 'Color',newcolors(i,:), 'HandleVisibility','off')
+    % xline(meanValue, 'LineStyle','--', 'LineWidth',4, 'Color',newcolors(i,:), 'HandleVisibility','off')
+    xline(peak_location, 'LineStyle',':', 'LineWidth',2, 'Color','k', 'HandleVisibility','off')
 
 end
 hold off
@@ -1822,7 +1823,7 @@ xlabel('q_{b,M_G,net} (m^2 s^{-1})')
 yticklabels({})
 
 % Add figure annotations
-annotation('textbox', [0.31, 0.8, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.305, 0.8, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
 annotation('textbox', [0.605, 0.8, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
 annotation('textbox', [0.905, 0.8, 0.1, 0.1], 'String','(c)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
 annotation('textbox', [0.69, 0.6, 0.1, 0.1], 'String',{'SW (ebb)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');

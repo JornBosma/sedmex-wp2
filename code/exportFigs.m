@@ -26,7 +26,7 @@ locOverleaf = '/Users/jorn/Library/CloudStorage/Dropbox/Apps/Overleaf/SEDMEX_WP2
 % exportgraphics(f3, [locResults 'CS_GS_time.png'], 'Resolution',300)
 % exportgraphics(f4, [locResults 'CS_dGSdZ.png'], 'Resolution',300)
 
-%% CrossShoreGS LW only
+%% CrossShoreGS_LW
 % exportgraphics(f5, [locResults 'CS_LW_dMSdz.png'], 'Resolution',300)
 
 % exportgraphics(f1, [locResults 'CS_LW_profile.png'], 'Resolution',300)
@@ -34,8 +34,12 @@ locOverleaf = '/Users/jorn/Library/CloudStorage/Dropbox/Apps/Overleaf/SEDMEX_WP2
 % exportgraphics(f3, [locResults 'CS_LW_GS_time.png'], 'Resolution',300)
 % exportgraphics(f4, [locResults 'CS_LW_dGSdZ.png'], 'Resolution',300)
 
+%% CrossShoreGS_tide
+% exportgraphics(f1a, [locResults 'CS_GS_mean.png'], 'Resolution',300)
+% exportgraphics(f1b, [locResults 'CS_GS_sort.png'], 'Resolution',300)
+
 %% DEM
-% exportgraphics(f1, [locResults 'DEM.png'], 'Resolution',300)
+% exportgraphics(f1, [locResults 'DEM_2022_Q1.png'], 'Resolution',300)
 
 %% flowRoses
 % exportgraphics(f1, [locResults 'roseCurrent.png'], 'Resolution',300)
@@ -52,7 +56,7 @@ locOverleaf = '/Users/jorn/Library/CloudStorage/Dropbox/Apps/Overleaf/SEDMEX_WP2
 %% LongShoreMobility
 % exportgraphics(f1, [locResults 'BSS_components.png'], 'Resolution',300)
 % exportgraphics(f2b, [locResults 'Shields_WvC.png'], 'Resolution',300)
-% exportgraphics(f6d, [locResults 'PDFs_MG.png'], 'Resolution',300)
+% exportgraphics(f6d, [locOverleaf 'PDFs_MG.png'], 'Resolution',300)
 
 % exportgraphics(f3a, [locResults 'TS_tau.png'], 'Resolution',300)
 % exportgraphics(f4a, [locResults 'TS_Einstein.png'], 'Resolution',300)
@@ -63,5 +67,7 @@ locOverleaf = '/Users/jorn/Library/CloudStorage/Dropbox/Apps/Overleaf/SEDMEX_WP2
 % exportgraphics(f6c, [locResults 'PDFs_90.png'], 'Resolution',300)
 
 %% scraper
+exportgraphics(f, [locOverleaf 'scraper.png'], 'Resolution',300)
+
 % exportgraphics(f1, [locResults 'scraper_mean.png'], 'Resolution',300)
 % exportgraphics(f2, [locResults 'scraper_sort.png'], 'Resolution',300)

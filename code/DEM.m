@@ -1,5 +1,5 @@
 %% Initialisation
-close all
+% close all
 clear
 clc
 
@@ -8,7 +8,7 @@ clc
 
 % Load DEMs
 DEMpath = [filesep 'Volumes' filesep 'T7 Shield' filesep 'PHZ' filesep];
-A = load([DEMpath, 'PHZ_2022_Q2.mat']);
+A = load([DEMpath, 'PHZ_2022_Q1.mat']); % 2 March 2022
 
 % Load polygons
 pgns = getPgons;
@@ -19,6 +19,12 @@ ADV = [SEDMEX.L6C1; SEDMEX.L5C1; SEDMEX.L4C1; SEDMEX.L3C1; SEDMEX.L2C5; SEDMEX.L
 trackNames = {"L6", "L5", "L4", "L3", "L2", "L1"};
 % sampleNames = {'L6', 'Tmb', 'L4', 'L3.5', 'L2', 'L0.5', 'Lgn'};
 sampleNames = {'L6', 'Tmb', 'L4', 'L3.5', 'L2', 'L0', 'Lgn'};
+
+% Scraper locations
+scraperNames = {'A1', 'A2', 'A3', 'B1', 'B2', 'B3'};
+xRD = [117181.518, 117191.776, 117198.36, 117180.968, 117189, 117190];
+yRD = [559826.537, 559819.537, 559813.872, 559829.67, 559824, 559819];
+z = [0.842, 0.179, -0.738, 1.058, 0.5, 0.168];
 
 clearvars DEMpath 
 
@@ -123,9 +129,14 @@ s2 = scatter(GS_LS.xRD_m, GS_LS.yRD_m, 100, 'filled', 'MarkerEdgeColor','k',...
     'MarkerFaceColor','y', 'Marker','v');
 text(GS_LS.xRD_m-120, GS_LS.yRD_m-60, sampleNames, 'FontSize',fontsize*.8)
 
+% % Scraper locations
+% s3 = scatter(xRD, yRD, 100, 'filled', 'MarkerEdgeColor','k',...
+%     'MarkerFaceColor','m', 'Marker','v');
+% text(xRD, yRD, scraperNames, 'FontSize',fontsize*.8)
+
 % Legend
 % lgnd = legend([c1, s1, s2], {'beach face', 'instruments', 'samples'}, 'Position',[0.1044, 0.4664, 0.1093, 0.1321], 'FontSize',fontsize);
-lgnd = legend([c1, c2, s1, s2], {'beach face', 'max tidal range', 'instruments', 'samples'}, 'Position',[0.105, 0.4664, 0.1093, 0.1321], 'FontSize',fontsize);
+lgnd = legend([c1, c2, s1, s2], {'intertidal zone', 'max tidal range', 'instruments', 'samples'}, 'Position',[0.105, 0.4664, 0.1093, 0.1321], 'FontSize',fontsize);
 
 % Add relevant contours
 % [~, c1] = contour(B.DEM.X, B.DEM.Y, B.DEM.Z, [SEDMEX.MeanHW, SEDMEX.MeanHW], '-g', 'ShowText','off', 'LineWidth',2);

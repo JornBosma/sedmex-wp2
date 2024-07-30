@@ -7,8 +7,15 @@ clc
 % fontsize = 30; % ultra-wide screen
 
 folderPath = [filesep 'Volumes' filesep 'T7 Shield' filesep 'DataDescriptor' filesep];
+
 sampleIDs = {'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'};
 idxSedi = [2155 2166 2171 2176 2181 2186 2196 2209];
+
+scrapeIDs = {'A1', 'A2', 'A3', 'B1', 'B2', 'B3'};
+idxScrp = [2111 2160 2195 2100 2137 2156];
+zScrp = [0.842, 0.179, -0.738, 1.058, 0.5, 0.168];
+MgScrp = [0.7663, 0.8251, 1.1917, 0.6488, 1.1421, 1.2748];
+SgScrp = [2.3424, 2.4073, 2.0377, 2.3947, 1.9592, 2.3955];
 
 
 %% Cross-shore profiles
@@ -117,6 +124,19 @@ surveyDates = [surveyDates(1); surveyDates(1)+days(1); surveyDates(2:3); surveyD
 clearvars z track Z_30Sep Z_20Sep Z_01Oct Z_02Oct date_30Sep date_02Oct date_01Oct
 
 
+%% Find scraper indices
+% % Define arrays A and B
+% A = Z(:, 9); % 7 Oct
+% B = zScrp;
+% 
+% % Call the function
+% indices = findClosestIndices(A, B);
+% 
+% % Display the resulting indices
+% disp('Indices of closest values in A for each element in B:');
+% disp(indices);
+
+
 %% Visualisation: L2 profile development
 f1 = figure('Position',[740, 1665, 1719, 628]);
 
@@ -125,6 +145,9 @@ p = gobjects(size(surveyDates));
 for n = 1:length(surveyDates)
     p(n) = plot(d, Z(:,n), 'LineWidth',3);
 end
+scatter(d(idxScrp([1, 4, 5])), zScrp([1, 4, 5]), 200, 'vk', 'LineWidth',3)
+text(d(idxScrp([1, 4, 5]))-.4, zScrp([1, 4, 5])-.2, scrapeIDs([1, 4, 5]), 'FontSize',fontsize*.8)
+% text(d(idxScrp([2, 3, 6]))-.4, zScrp([2, 3, 6])+.15, scrapeIDs([2, 3, 6]), 'FontSize',fontsize*.8)
 hold off
 
 p(2).LineStyle = ":";
@@ -133,6 +156,7 @@ p(5).LineStyle = ":";
 newcolors = crameri('-roma', length(surveyDates));
 colororder(newcolors)
 
+% xline(d(idxScrp), '-', scrapeIDs, 'FontSize',fontsize, 'LabelHorizontalAlignment','center')
 xline(d(idxSedi), '-', sampleIDs, 'FontSize',fontsize, 'LabelHorizontalAlignment','center')
 
 % Tide levels over considered period
@@ -144,12 +168,12 @@ yline(-.535, '--', 'MLW', 'FontSize',fontsize, 'Color',cbf.grey, 'LineWidth',2, 
 yline(0.08, '--', 'storm LW         ', 'FontSize',fontsize, 'Color','red', 'LineWidth',2, 'Alpha',.5) % Oct 01 08:20
 yline(1.13, '--', 'storm HW         ', 'FontSize',fontsize, 'Color','red', 'LineWidth',2, 'Alpha',.5) % Sep 30 00:30
 
-xlim([-30, 20])
+xlim([-30, 10])
 ylim([-1.7, 1.7])
 
 xlabel('cross-shore distance (m)')
 ylabel('bed level (NAP+m)')
-legend(string(surveyDates), 'Location','eastoutside')
+legend(string(surveyDates, 'dd MMM'), 'Location','eastoutside')
 
 clearvars n newcolors p d
 
@@ -424,7 +448,7 @@ fprintf('R-squared: %.4f\n', R_squared)
 
 % Plot the scatter points
 figureRH;
-scatter(x, y, 100, 'filled', 'MarkerEdgeColor','k')
+scatter(x, y, 200, 'filled', 'MarkerEdgeColor','k')
 yline(0, '--', 'LineWidth',2)
 hold on
 
@@ -454,14 +478,14 @@ f4 = figure(Position=[1, 86, 1470, 754]);
 tiledlayout(2,2, 'TileSpacing','loose')
 
 nexttile
-scatter(zDiff, meanDiff, 100, 'filled', 'MarkerEdgeColor','k')
+scatter(zDiff, meanDiff, 200, 'filled', 'MarkerEdgeColor','k')
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
 % xlabel('\Deltaz (m)')
 ylabel('\DeltaM_{G} (mm)')
 
 nexttile
-scatter(zDiff, sortingDiff, 100, 'filled', 'MarkerEdgeColor','k'); hold on
+scatter(zDiff, sortingDiff, 200, 'filled', 'MarkerEdgeColor','k'); hold on
 plot(zDiff(2, 7), sortingDiff(2, 7), 'rx', 'MarkerSize',20, 'LineWidth',2)
 plot(x_fit, y_fit, '-r', 'LineWidth', 3); hold off
 text(.23, -.2, {equationText, rsquaredText}, 'VerticalAlignment','top',...
@@ -473,14 +497,14 @@ ylabel('\Delta\sigma_{G}')
 legend(sampleIDs, 'Location','eastoutside')
 
 nexttile
-scatter(zDiff, skewnessDiff, 100, 'filled', 'MarkerEdgeColor','k')
+scatter(zDiff, skewnessDiff, 200, 'filled', 'MarkerEdgeColor','k')
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
 xlabel('\Deltaz (m)')
 ylabel('\DeltaSk_{G}')
 
 nexttile
-scatter(zDiff, kurtosisDiff, 100, 'filled', 'MarkerEdgeColor','k')
+scatter(zDiff, kurtosisDiff, 200, 'filled', 'MarkerEdgeColor','k')
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
 xlabel('\Deltaz (m)')

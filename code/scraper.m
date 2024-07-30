@@ -4,7 +4,7 @@ clear
 clc
 
 [~, fontsize, cbf, ~, ~] = sedmex_init;
-% fontsize = 30; % ultra-wide screen
+% fontsize = 26; % ultra-wide screen
 
 folderPath = [filesep 'Volumes' filesep 'T7 Shield' filesep...
     'DataDescriptor' filesep 'grainsizes' filesep];
@@ -52,35 +52,48 @@ bar15 = [bar15; bar15(end)];
 runnel15 = GS_20211015{41:48, "Mean_mu"}/1000;
 runnel15 = [runnel15; NaN; NaN; NaN];  % groundwater hit
 
+% Calculate mean stats
+Mg = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
+    MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
+
 
 %% Visualisation: pcolor
-f1 = figure("Position",[860 1681 923 330]);
-tiledlayout(1,8, "TileSpacing","compact")
+% f1 = figure("Position",[860 1681 923 330]);
+% tiledlayout(1,8, "TileSpacing","compact")
+
+f = figure('Position',[740, 1775, 643, 518]);
+tiledlayout(2,8, "TileSpacing","compact")
 
 ax(1) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [HW07, HW07])
-title('HW7')
+% title('HW7')
+title('A1')
 ylabel('depth (mm)')
 
 ax(2) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [MW07, MW07])
-title('MW7')
+% title('MW7')
+title('A2')
 
 ax(3) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [LW07, LW07])
-title('LW7')
+% title('LW7')
+title('A3')
 
 ax(4) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [HW15, HW15])
-title('HW15')
+% title('HW15')
+title('B1')
 
 ax(5) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [MW15, MW15])
-title('MW15')
+% title('MW15')
+title('B2')
 
 ax(6) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [LW15, LW15])
-title('LW15')
+% title('LW15')
+title('B3')
 
 ax(7) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [bar15, bar15])
@@ -88,14 +101,15 @@ title('bar')
 
 ax(8) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [runnel15, runnel15])
-title('runnel')
+% title('runnel')
+title('runl')
 ax(8).Color = cbf.skyblue;
 yticks({})
 
 c = colorbar;
 % c.Position = [0.9 0.11 0.013 0.8];
 c.Label.String = 'M_{G} (mm)';
-c.FontSize = fontsize;
+c.FontSize = fontsize*.8;
 
 set(ax(2:8), 'yTickLabel', [])
 set(ax, 'YDir', 'normal')
@@ -136,50 +150,54 @@ bar15 = [bar15; bar15(end)];
 runnel15 = GS_20211015{41:48, "Sorting"};
 runnel15 = [runnel15; NaN; NaN; NaN];  % groundwater hit
 
+% Calculate mean stats
+Sg = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
+    MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
+
 
 %% Visualisation: pcolor
-f2 = figure("Position",[860 1271 923 330]);
-tiledlayout(1,8, "TileSpacing","compact")
+% f2 = figure("Position",[860 1271 923 330]);
+% tiledlayout(1,8, "TileSpacing","compact")
 
 ax(1) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [HW07, HW07])
-title('HW7')
+% title('HW7')
 ylabel('depth (mm)')
 
 ax(2) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [MW07, MW07])
-title('MW7')
+% title('MW7')
 
 ax(3) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [LW07, LW07])
-title('LW7')
+% title('LW7')
 
 ax(4) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [HW15, HW15])
-title('HW15')
+% title('HW15')
 
 ax(5) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [MW15, MW15])
-title('MW15')
+% title('MW15')
 
 ax(6) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [LW15, LW15])
-title('LW15')
+% title('LW15')
 
 ax(7) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [bar15, bar15])
-title('bar')
+% title('bar')
 
 ax(8) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [runnel15, runnel15])
-title('runnel')
+% title('runnel')
 ax(8).Color = cbf.skyblue;
 yticks({})
 
 c = colorbar;
 % c.Position = [0.9 0.11 0.013 0.8];
 c.Label.String = '\sigma_{G}';
-c.FontSize = fontsize;
+c.FontSize = fontsize*.8;
 
 set(ax(2:8), 'yTickLabel', [])
 set(ax, 'YDir', 'normal')
@@ -191,3 +209,24 @@ set(ax, 'Colormap', brewermap([],"BuPu"), 'CLim',[1.5 3])
 %     shading(ax(i), 'interp')
 % end
 
+% Add figure annotations
+annotation('textbox', [0.02, 0.88, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.02, 0.43, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+
+annotation('textbox', [0.2, 0.65, 0.1, 0.1], 'String',mat2str(Mg(1),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.29, 0.65, 0.1, 0.1], 'String',mat2str(Mg(2),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.372, 0.65, 0.1, 0.1], 'String',mat2str(Mg(3),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.462, 0.65, 0.1, 0.1], 'String',mat2str(Mg(4),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.55, 0.65, 0.1, 0.1], 'String',mat2str(Mg(5),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.64, 0.65, 0.1, 0.1], 'String',mat2str(Mg(6),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.73, 0.65, 0.1, 0.1], 'String',mat2str(Mg(7),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.82, 0.65, 0.1, 0.1], 'String',mat2str(Mg(8),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+
+annotation('textbox', [0.2, 0.21, 0.1, 0.1], 'String',mat2str(Sg(1),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.29, 0.21, 0.1, 0.1], 'String',mat2str(Sg(2),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.372, 0.21, 0.1, 0.1], 'String',mat2str(Sg(3),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.462, 0.21, 0.1, 0.1], 'String',mat2str(Sg(4),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.55, 0.21, 0.1, 0.1], 'String',mat2str(Sg(5),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.64, 0.21, 0.1, 0.1], 'String',mat2str(Sg(6),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.73, 0.21, 0.1, 0.1], 'String',mat2str(Sg(7),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+annotation('textbox', [0.82, 0.21, 0.1, 0.1], 'String',mat2str(Sg(8),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');

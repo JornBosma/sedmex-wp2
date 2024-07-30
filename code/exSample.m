@@ -100,3 +100,30 @@ ylabel('class weight (%)', 'FontSize',fontsize*.9)
 axis padded
 
 
+%%
+f2 = figure;
+ax2 = axes;
+
+boundaries = [fliplr(sieveSizes)];
+h = stairs(boundaries, [fliplr(frequency)], 'LineStyle','none'); hold on
+
+x = repelem(h.XData(2:end), 2);
+y = repelem(h.YData(1:end-1), 2);
+x(end) = []; y(1) = [];
+fill([x, fliplr(x)], [y, min(h.YData)*ones(size(y))], cbf.orange, 'LineWidth',1)
+
+for n = 1:length(h.XData)
+    line([h.XData(n), h.XData(n)], [0, h.YData(n)], 'Color','k', 'LineWidth',1)
+end
+
+ax2.XScale = 'log';
+ax2.XAxisLocation = 'bottom';
+ax2.YAxisLocation = 'right';
+% ax2.Color = [0.9 0.9 0.9];
+% ax2.FontSize = fontsize*.9;
+
+% xlabel('particle diameter (μm)', 'FontSize',fontsize*.9)
+% ylabel('class weight (%)', 'FontSize',fontsize*.9)
+
+box off
+axis off

@@ -515,3 +515,79 @@ xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
 ylim([1 7])
 % xlim([1 3])
 yticks([])
+
+
+%% Additional calculations
+
+% M = [h6a.ColorDisplayData(:); h6b.ColorDisplayData(:)];
+% S = [h6c.ColorDisplayData(:); h6d.ColorDisplayData(:)];
+
+M00 = h6a.ColorDisplayData(:);
+S00 = h6c.ColorDisplayData(:);
+
+M08 = h6b.ColorDisplayData(:);
+S08 = h6d.ColorDisplayData(:);
+
+figure
+hold on
+scatter(M00, S00, 100, 'filled')
+scatter(M08, S08, 100, 'filled')
+hold off
+
+xlabel('M_G (mm)')
+ylabel('\sigma_G')
+legend('NAP +0', 'NAP –0.8 m')
+
+
+M = M00;
+S = S00;
+
+% Step 1: Remove NaN values
+validIndices = ~isnan(M) & ~isnan(S);
+M_clean = M(validIndices);
+S_clean = S(validIndices);
+
+% Step 2: Fit a linear model (y = mx + b)
+p = polyfit(M_clean, S_clean, 1); % p(1) is the slope, p(2) is the intercept
+
+% Step 3: Calculate the fitted values and residuals
+S_fit = polyval(p, M_clean);
+residuals = S_clean - S_fit;
+
+% Step 4: Calculate R-squared
+SS_res = sum(residuals .^ 2);
+SS_tot = sum((S_clean - mean(S_clean)) .^ 2);
+R_squared = 1 - (SS_res / SS_tot);
+
+% Display the results
+fprintf('Linear fit: S = %.4f * M + %.4f\n', p(1), p(2));
+fprintf('R-squared: %.4f\n', R_squared);
+
+%% Spatial gradients
+dist = [751.7362; % L6 - Tmb
+    268.0275;     % Tmb - L4
+    596.4807;     % L4 - L3.5
+    794.0613;     % L3.5 - L2
+    448.8194;     % L2 - L0
+    64.7343];     % L0 - Lgn
+
+diff_M = diff(h6b.ColorDisplayData(:, 1));
+
+diff_M ./ dist * 1000 * 100 % [microns per 100 m distance]
+
+%%
+% Step 1: Flatten the matrix to a vector
+A_flat = h6d.ColorDisplayData(:);
+
+% Step 2: Remove NaN values
+A_no_nan = A_flat(~isnan(A_flat));
+
+% Step 3: Count values smaller than 2
+count_smaller_than_2 = sum(A_no_nan > 1.41 & A_no_nan < 2);
+
+% Step 4: Calculate the percentage
+percentage = (count_smaller_than_2 / numel(A_no_nan)) * 100;
+
+% Display the result
+disp(['Percentage of values smaller than 2: ', num2str(percentage), '%']);
+disp(['Percentage of values greater than or equal to 2: ', num2str(100-percentage), '%']);

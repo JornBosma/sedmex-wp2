@@ -145,9 +145,9 @@ p = gobjects(size(surveyDates));
 for n = 1:length(surveyDates)
     p(n) = plot(d, Z(:,n), 'LineWidth',3);
 end
-scatter(d(idxScrp([1, 4, 5])), zScrp([1, 4, 5]), 200, 'vk', 'LineWidth',3)
-text(d(idxScrp([1, 4, 5]))-.4, zScrp([1, 4, 5])-.2, scrapeIDs([1, 4, 5]), 'FontSize',fontsize*.8)
-% text(d(idxScrp([2, 3, 6]))-.4, zScrp([2, 3, 6])+.15, scrapeIDs([2, 3, 6]), 'FontSize',fontsize*.8)
+scatter(d(idxScrp), zScrp, 200, 'vk', 'LineWidth',3)
+text(d(idxScrp([1, 4, 5]))-.4, zScrp([1, 4, 5])-.22, scrapeIDs([1, 4, 5]), 'FontSize',fontsize*.8)
+text(d(idxScrp([2, 3, 6]))-.4, zScrp([2, 3, 6])+.22, scrapeIDs([2, 3, 6]), 'FontSize',fontsize*.8)
 hold off
 
 p(2).LineStyle = ":";
@@ -174,7 +174,7 @@ ylim([-1.7, 1.7])
 xlabel('cross-shore distance (m)')
 ylabel('bed level (NAP+m)')
 legend(string(surveyDates, 'dd MMM'), 'Location','eastoutside')
-
+stop
 clearvars n newcolors p d
 
 
@@ -539,3 +539,6 @@ legend(sampleIDs, 'Location','eastoutside')
 
 newcolors = brewermap(length(meanDiff), 'Greys');
 colororder(newcolors)
+
+annotation('textbox', [0.424, 0.815, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.9, 0.815, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');

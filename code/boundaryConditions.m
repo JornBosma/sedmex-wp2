@@ -248,3 +248,11 @@ for i = 3:6
     xline(ax(i), XsamplingDates, '-', 'LineWidth',2, 'Color','b', 'HandleVisibility','off')
     xline(ax(i), YsamplingDates, '--', 'LineWidth',2, 'Color','g', 'HandleVisibility','off')
 end
+
+
+%% Additional calculations
+h = ncread(dataPath, 'h'); % height control volume above bed [m]
+h_mean = mean(h, 'omitmissing');
+
+ratio = abs(TT_L2C10.ulm ./ TT_L2C10.ucm);
+ratio_mean = mean(ratio, 'omitmissing');

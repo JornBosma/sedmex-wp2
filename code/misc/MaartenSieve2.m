@@ -23,11 +23,16 @@ GS_20201202 = readtable(dataPath, opts);
 sieveSizes_20201202 = [extractSieveNumbers(GS_20201202)]';
 massRetained_20201202 = [GS_20201202{:, 17:end}]';
 
-ZeefData = massRetained_20201202(1:end-1, :); % 45 mu sieve too fine (rounds off to zero)
+ZeefData = massRetained_20201202(1:end-1, :); % NOTE: 45 mu sieve too fine (rounds off to zero)
 ZeefDiam = [16000; sieveSizes_20201202(1:end-1)] ./ 1e6; % Convert to meters
-
 sieveDiam = [flip([16000; sieveSizes_20201202] ./ 1e6)]'; % Convert to meters
 sieveData = flip(massRetained_20201202);
+
+% % Exclude largest sieve size
+% ZeefDiam = ZeefDiam(2:end);
+% ZeefData = ZeefData(2:end,:);
+% sieveDiam = sieveDiam(1:end-1);
+% sieveData = sieveData(1:end-1,:);
 
 % bin_widths = diff(sieveDiam);
 % relSieveData = sieveData ./ bin_widths';
@@ -77,38 +82,55 @@ for dat = 1:N
 end
 
 % Plot figures
-f = figure('Position',[740, 957, 1719, 1336]);
-tiledlayout(2, 1)
+f = figure('Position',[740, 1665, 1719, 628]);
+tiledlayout(1, 2)
 
 nexttile
-for i = 1%:length(ZeefPerc)
-    semilogx(ZeefDiam(1:end-1), ZeefPerc(:, i));
+for i = 15%1:length(ZeefPerc)
+    semilogx(ZeefDiam(1:end-1), ZeefPerc(:, i), '-o', 'LineWidth',3);
     hold on
-    plot(Percen(:, i), Perc, '.');
-    plot(GeoMeanStd(1, i), 0.5, 'o', ...
-        2 ^ (PsiMeanStd(1, i) - PsiMeanStd(2, i)), 0.5, '>', ...
-        2 ^ (PsiMeanStd(1, i) + PsiMeanStd(2, i)), 0.5, '<');
+    plot(Percen(:, i), Perc, '.', 'LineWidth',3);
+    plot(GeoMeanStd(1, i), 0.5, 'og', ...
+        2 ^ (PsiMeanStd(1, i) - PsiMeanStd(2, i)), 0.5, '>g', ...
+        2 ^ (PsiMeanStd(1, i) + PsiMeanStd(2, i)), 0.5, '<g', 'LineWidth',3);
 end
 hold off
+
+yline(0.1, '--')
+yline(0.5, '--')
+yline(0.9, '--')
+xline(Percen(1,i), ':', 'LineWidth',3)
+xline(Percen(3,i), '-', 'LineWidth',3)
+xline(Percen(5,i), ':', 'LineWidth',3)
+
 xlabel('Particle diameter (mm)');
 ylabel('Probability');
-title('Cumulative Sieve Curve with Percentiles and Mean Diameter');
+title('CDF');
 
 nexttile
-for i = 1%:length(ZeefPerc)
+for i = 15%1:length(ZeefPerc)
     yyaxis left
-    semilogx(FracDiam, ZeefData(:, i));
+    semilogx(FracDiam, ZeefData(:, i), 'o-', 'LineWidth',2);
     hold on
-    plot(GeoMeanStd(1, i), 0.01, 'o', ...
-        2 ^ (PsiMeanStd(1, i) - PsiMeanStd(2, i)), 0.01, '>', ...
-        2 ^ (PsiMeanStd(1, i) + PsiMeanStd(2, i)), 0.01, '<');
+    plot(GeoMeanStd(1, i), 0.01, 'og', ...
+        2 ^ (PsiMeanStd(1, i) - PsiMeanStd(2, i)), 0.01, '>g', ...
+        2 ^ (PsiMeanStd(1, i) + PsiMeanStd(2, i)), 0.01, '<g', 'LineWidth',3);
     ylabel('Fraction')
 
     yyaxis right
     % Plotting the histogram
-    histogram('BinEdges',sieveDiam, 'BinCounts',sieveData(:, i), 'FaceAlpha',.1);
+    histogram('BinEdges',sieveDiam, 'BinCounts',sieveData(:, i), 'FaceAlpha',.1, 'LineStyle','none');
     yticks([])
 end
 hold off
-xlabel('Particle diameter (mm)');
-title('Non-Cumulative Probability Distribution');
+
+xline(Percen(1,i), ':', 'LineWidth',3)
+xline(Percen(3,i), '-', 'LineWidth',3)
+xline(Percen(5,i), ':', 'LineWidth',3)
+
+xlabel('Particle diameter (m)');
+title('PDF');
+
+
+%% Store figure
+exportgraphics(f, '/Users/jorn/Downloads/2020-12-02_T05S02.png', 'Resolution',300)

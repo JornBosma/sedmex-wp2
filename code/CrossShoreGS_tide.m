@@ -3,7 +3,7 @@ close all
 clear
 clc
 
-[~, fontsize, cbf, PHZ, SEDMEX] = sedmex_init;
+[~, fontsize, cbf, ~, ~] = sedmex_init;
 % fontsize = 30; % ultra-wide screen
 
 folderPath = [filesep 'Volumes' filesep 'T7 Shield' filesep 'DataDescriptor' filesep];
@@ -33,24 +33,35 @@ clearvars Sep20 Sep28 Oct01 Oct07 Oct15
 
 
 %% Water level data
+instrument = 'L2C6OSSI';
 filename = fullfile(folderPath, 'hydrodynamics', 'pressuresensors',...
-    'L2C6OSSI', 'tailored_L2C6OSSI.nc');
+    instrument, ['tailored_', instrument, '.nc']);
+
+% instrument = 'L2C7ADCP';
+% filename = fullfile(folderPath, 'hydrodynamics', 'ADCP',...
+%     ['tailored_', instrument, '.nc']);
+
+% instrument = 'L2C10VEC';
+% filename = fullfile(folderPath, 'hydrodynamics', 'ADV',...
+%     instrument, ['tailored_', instrument, '.nc']);
+
 info = ncinfo(filename);
 
 % Defined starting time
 t0 = datetime('2021-09-01 00:00:00','InputFormat','yyyy-MM-dd HH:mm:ss');
-t = ncread(filename, 't');  % seconds since 2021-09-01
+t = ncread(filename, 't');      % seconds since 2021-09-01
 Time = t0 + seconds(t);
-eta = ncread(filename, 'zs');  % water level [NAP+m]
-eta = timetable(Time, eta);
+eta = ncread(filename, 'zs');   % water level [NAP+m]
+Hm0 = ncread(filename, 'Hm0');  % wave height [m]
+L2C6 = timetable(Time, eta, Hm0);
 
 % Retiming the water levels timetable to match the sampling times
-alignedWaterLevels = retime(eta, allSamplingTimes, 'linear');
+alignedWaterLevels = retime(L2C6, allSamplingTimes, 'linear');
 
 % Display the aligned water levels at the sampling times
 disp(alignedWaterLevels);
 
-clearvars allSamplingTimes info t t0 Time
+clearvars allSamplingTimes info t t0 Time filename eta Hm0
 
 
 %% Cross-shore profiles
@@ -132,6 +143,9 @@ Z_01Oct = interp1([date_30Sep, date_02Oct], [Z_30Sep'; Z_02Oct'], date_01Oct)';
 Z = [Z(:, 1), Z_20Sep, Z(:, 2:3), Z_01Oct, Z(:, 4:end)];
 surveyDates = [surveyDates(1); surveyDates(1)+days(1); surveyDates(2:3); surveyDates(4)-days(1); surveyDates(4:end)];
 
+% Create colour scheme
+surveyColours = crameri('-roma', length(surveyDates));
+
 clearvars z track Z_30Sep Z_20Sep Z_01Oct Z_02Oct date_30Sep date_02Oct date_01Oct
 
 
@@ -151,8 +165,7 @@ hold off
 p(2).LineStyle = ":";
 p(5).LineStyle = ":";
 
-newcolors = crameri('-roma', length(surveyDates));
-colororder(newcolors)
+colororder(surveyColours)
 
 % xline(d(idxScrp), '-', scrapeIDs, 'FontSize',fontsize, 'LabelHorizontalAlignment','center')
 xline(d(idxSedi), '-', sampleIDs, 'FontSize',fontsize, 'LabelHorizontalAlignment','center')
@@ -173,7 +186,7 @@ xlabel('cross-shore distance (m)')
 ylabel('bed level (NAP+m)')
 legend(string(surveyDates, 'dd MMM'), 'Location','eastoutside')
 
-clearvars n newcolors p
+clearvars n p
 
 
 %% Visualisation: Water levels during sampling
@@ -203,8 +216,7 @@ for n = [2, 3, 5, 8, 9]
     end
     hold off
     
-    newcolors = crameri('-roma', length(surveyDates));
-    colororder(newcolors(n, :))
+    colororder(surveyColours(n, :))
         
     % Filter water levels for the current survey date
     currentDate = dateshift(surveyDates(n), 'start', 'day');
@@ -291,8 +303,6 @@ GS_20211015.zNAP_m = repmat(Z(idxSedi, 5), 4, 1);
 GS_20211015.Mean_mm = GS_20211015.Mean_mu/1e3;
 
 GS_tables = {GS_20210920, GS_20210928, GS_20211001, GS_20211007, GS_20211015};
-rowNames = ["GS_20210920"; "GS_20210928"; "GS_20211001"; "GS_20211007"; "GS_20211015"];
-columnNames = ["L2C2"; "L2C3"; "L2C3_5"; "L2C4"; "L2C4_5"; "L2C5W"; "L2C5E"; "L2C6"];
 
 % Replace dots ('.') in sample IDs by underscores ('_')
 for i = 1:length(GS_tables)
@@ -331,7 +341,7 @@ clearvars dates counts
 
 %% Visualisation: spatial plots (mean)
 axs = gobjects(size(GS_tables));
-newcolors = brewermap(4, '-PuOr');
+tideColours = brewermap(4, '-PuOr');
 
 f1b = figure(Position=[1222, 1665, 1237, 628]);
 tiledlayout(3, 2, 'TileSpacing','compact')
@@ -358,7 +368,7 @@ for i = 1:length(GS_tables)
                 'MarkerFaceAlpha', 0.5, 'HandleVisibility', 'off');
         end
 
-        plot(xpos, data.Mean_mm, '-o', 'LineWidth',3, 'MarkerSize',8, 'Color',newcolors(j, :))
+        plot(xpos, data.Mean_mm, '-o', 'LineWidth',3, 'MarkerSize',8, 'Color',tideColours(j, :))
 
     end
 
@@ -385,12 +395,12 @@ yticks(axs, 0:3)
 
 grid(axs, 'on')
 
-clearvars i j dry sampleTimes waterLevels
+clearvars i j dry sampleTimes waterLevels axs
 
 
 %% Visualisation: spatial plots (sorting)
 axs = gobjects(size(GS_tables));
-newcolors = brewermap(4, '-PuOr');
+tideColours = brewermap(4, '-PuOr');
 
 f1a = figure(Position=[1222, 1665, 1237, 628]);
 tiledlayout(3, 2, 'TileSpacing','compact')
@@ -417,7 +427,7 @@ for i = 1:length(GS_tables)
                 'MarkerFaceAlpha', 0.5, 'HandleVisibility', 'off');
         end
 
-        plot(xpos, data.Sorting, '-o', 'LineWidth',3, 'MarkerSize',8, 'Color',newcolors(j, :))
+        plot(xpos, data.Sorting, '-o', 'LineWidth',3, 'MarkerSize',8, 'Color',tideColours(j, :))
 
     end
 
@@ -444,7 +454,7 @@ yticks(axs, 2:4)
 
 grid(axs, 'on')
 
-clearvars i j dry sampleTimes waterLevels
+clearvars i j dry sampleTimes waterLevels axs
 
 
 %% Visualisation: time evolution plots
@@ -452,24 +462,69 @@ axs = gobjects(size(GS_tables));
 ax_left = gobjects(size(GS_tables));
 ax_right = gobjects(size(GS_tables));
 f2 = gobjects(size(GS_tables));
+tidalVariation_M = nan(length(GS_tables), length(xpos));
+tidalVariation_S = nan(length(GS_tables), length(xpos));
 
 for i = 1:length(GS_tables)
-    f2(i) = figure(Position=[390, 957, 831, 888]);
-    tiledlayout(4,2, 'TileSpacing','none')
+    f2(i) = figure(Position=[740, 1405, 831, 888]);
+    tiledlayout(5,2, 'TileSpacing','compact')
 
     % Get the corresponding water level for this sample time
     sampleTimes = alignedWaterLevels.Time(alignedWaterLevels.Date == categorical(samplingDates(i)));
     waterLevels = alignedWaterLevels.eta(alignedWaterLevels.Date == categorical(samplingDates(i)));
+
+    % Specify the date of interest
+    targetDate = samplingDates(i);
+
+    % Extract the data for the specified date
+    dailyData = L2C6(L2C6.Time >= targetDate & L2C6.Time < targetDate + days(1), :);
+
+    axs(1) = nexttile;
+    plot(dailyData.Time, dailyData.eta, 'LineWidth',3)
+    ylabel('\eta (NAP+m)')
+    ylim([-1.2, 1])
+
+    axs(2) = nexttile;
+    yyaxis left
+    ax_left(2) = gca;
+    ax_left(2).YColor = 'k';
+    yticklabels({})
+    yyaxis right
+    plot(dailyData.Time, dailyData.Hm0, 'LineWidth',3, 'Color',cbf.blue)
+    ax_right(2) = gca;
+    ax_right(2).YColor = 'k';
+    ylabel('H_{m0} (m)')
+    ylim([0, .5])
     
+    if i == 3
+        text(sampleTimes(1)+hours(5.8), .08, instrument, 'FontSize',fontsize*.8)
+    else
+        text(sampleTimes(1)+hours(5.8), .42, instrument, 'FontSize',fontsize*.8)
+    end
+
     hold on
     for j = 1:length(xLocs)
-        axs(j) = nexttile;        
+        axs(j+2) = nexttile;        
         data = GS_tables{i}(strcmp(GS_tables{i}.Sample_Identity, xLocs{j}), :);
+        sampleHeight = sampleZ(j, i); % assume bed level remains constant throughout tidal cycle
         
         yyaxis left
+        for k = 2:length(waterLevels)
+            % Indicate sample locations which have not been submerged since
+            % the previous sampling moment
+            dry = sampleZ(j, i) > waterLevels(k)+0.1 & sampleHeight > waterLevels(k-1)+0.1;
+            % Bed level has stayed above water level, plot with thick red edge
+            if dry
+                scatter(sampleTimes(k), data.Mean_mm(k), 300, 'filled', ...
+                   'MarkerEdgeColor', 'none', 'MarkerFaceColor', 'g', ...
+                    'MarkerFaceAlpha', 0.5, 'HandleVisibility', 'off');
+            end
+        end
+
         plot(sampleTimes, data.Mean_mm(1:length(sampleTimes)), '-ok', 'LineWidth',3, 'MarkerSize',8)
         yline(mean(data.Mean_mm, 'all', 'omitmissing'), '--k', 'LineWidth',2)
         ylim([0, 3.5])
+        yticks(0:3)
         ax_left(j) = gca;
         ax_left(j).YColor = 'black';
         if j == 3
@@ -480,9 +535,22 @@ for i = 1:length(GS_tables)
         end
     
         yyaxis right
+        for k = 2:length(waterLevels)
+            % Indicate sample locations which have not been submerged since
+            % the previous sampling moment
+            dry = sampleZ(j, i) > waterLevels(k)+0.1 & sampleHeight > waterLevels(k-1)+0.1;
+            % Bed level has stayed above water level, plot with thick red edge
+            if dry
+                scatter(sampleTimes(k), data.Sorting(k), 300, 'filled', ...
+                   'MarkerEdgeColor', 'none', 'MarkerFaceColor', 'g', ...
+                    'MarkerFaceAlpha', 0.5, 'HandleVisibility', 'off');
+            end
+        end
+
         plot(sampleTimes, data.Sorting(1:length(sampleTimes)), '-or', 'LineWidth',3, 'MarkerSize',8)
         yline(mean(data.Sorting, 'all', 'omitmissing'), '--r', 'LineWidth',2)
-        ylim([1 4.5])
+        ylim([1.5, 4.2])
+        yticks(2:4)
         ax_right(j) = gca;
         ax_right(j).YColor = 'red';
         if j == 6
@@ -491,17 +559,77 @@ for i = 1:length(GS_tables)
         if j == 1 || j == 3 || j == 5 || j == 7
             yticklabels('')
         end
+
+        % Calculate and store tidal variation of each location
+        tidalVariation_M(i, j) = std(data.Mean_mm, 'omitmissing');
+        tidalVariation_S(i, j) = std(data.Sorting, 'omitmissing');
     
-        text(sampleTimes(end)-hours(.7), ax_right(j).YLim(2)*.9,...
+        text(sampleTimes(1)+hours(8.4), ax_right(j).YLim(2)*.9,...
             sampleIDs(j), 'FontSize',fontsize)
+        % if j < 5
+        %     annotation('textbox', [0.45, 0.8-j*.15, 0.1, 0.1], 'String',sampleIDs(j), 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+        % else
+        %     annotation('textbox', [0.85, 1.4-j*.15, 0.1, 0.1], 'String',sampleIDs(j), 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+        % end
     end
     hold off
 
-    xticks(axs, sampleTimes)
-    xticklabels(axs(1:6), '')
+    % xticks(axs, sampleTimes)    
     
-    xlim(axs, [sampleTimes(1)-hours(1), sampleTimes(end)+hours(1)])
+    xlim(axs, [sampleTimes(1)-hours(1), sampleTimes(1)+hours(10)])
     grid(axs, 'on')
+    
+    xticklabels(axs(1:8), '')
+
 end
 
-% clearvars i j ax_right ax_left axs
+% Only 1 sample on 1 Oct
+tidalVariation_M(3, :) = NaN;
+tidalVariation_S(3, :) = NaN;
+
+clearvars i j k ax_right ax_left axs dry sampleTimes waterLevels sampleHeight targetDate dailyData
+
+
+%% Visualisation: tidal variation per location
+n = [1, 2, 4, 5];
+tideVar_M = tidalVariation_M(n, :);
+tideVar_S = tidalVariation_S(n, :);
+
+f3 = figure(Position=[740, 1813, 936, 480]);
+tiledlayout(2, 1, 'TileSpacing','compact')
+
+nexttile
+hold on
+plot(xpos, tideVar_M', 'o-', 'LineWidth',2)
+colororder(surveyColours([2, 3, 8, 9], :))
+plot(xpos, mean(tideVar_M, 'omitmissing'), 'r', 'LineWidth',4)
+plot(xpos, median(tideVar_M, 'omitmissing'), ':r', 'LineWidth',4)
+hold off
+
+ylabel('\sigma_{tide} (M_G)')
+
+xlim([xpos(1)-1, xpos(end)+1])
+xticks(xpos)
+xticklabels('')
+grid on
+
+legend([cellstr(string(samplingDates(n), 'dd-MMM')); 'mean'; 'median'], 'Location', 'northeastoutside')
+
+nexttile
+hold on
+plot(xpos, tideVar_S', 'o-', 'LineWidth',2)
+plot(xpos, mean(tideVar_S, 'omitmissing'), 'r', 'LineWidth',4)
+plot(xpos, median(tideVar_S, 'omitmissing'), ':r', 'LineWidth',4)
+hold off
+
+ylabel('\sigma_{tide} (\sigma_{G})')
+
+xlim([xpos(1)-1, xpos(end)+1])
+xticks(xpos)
+xticklabels(sampleIDs)
+grid on
+
+annotation('textbox', [0.78, 0.815, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.78, 0.375, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+
+clearvars tideVar_M tideVar_S n

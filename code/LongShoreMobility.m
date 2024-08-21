@@ -11,7 +11,7 @@ dataPath = fullfile(filesep, 'Volumes', 'T7 Shield', 'DataDescriptor', 'hydrodyn
 instruments = ["L1C1VEC", "L2C4VEC", "L3C1VEC", "L4C1VEC", "L5C1VEC", "L6C1VEC"];
 sampleLocs = {'L1', 'L2', 'L3.5', 'L4', 'Tmb', 'L6'};
 instruLocs = {'L1', 'L2', 'L3', 'L4', 'L5', 'L6'};
-GS_fractions = {'Mg', 'd10', 'd50', 'd90'};
+GS_fractions = {'Mg', 'd10', 'd50', 'd90', 'Fine', 'Coarse'};
 
 % newcolors = [cbf.vermilion; cbf.blue; cbf.bluegreen; cbf.yellow; cbf.redpurp; cbf.skyblue; cbf.orange];
 newcolors = cbf.six([2, 1, 3:5, 7:end], :);
@@ -52,8 +52,10 @@ Mg = Mg*1e-3;
 d10 = d10*1e-3;
 d50 = d50*1e-3;
 d90 = d90*1e-3;
+Fine = repmat(0.25*1e-3, length(Mg), 1);
+Coarse = repmat(2*1e-3, length(Mg), 1);
 
-GS_stats = table(Mg, d10, d50, d90, fg, 'RowNames', flipud(sampleLocs));
+GS_stats = table(Mg, d10, d50, d90, Fine, Coarse, fg, 'RowNames', flipud(sampleLocs));
 
 % Initialize arrays for critical Shields and bed-shear stress computations
 crit_methods = {'Soulsby', 'Egiazaroff', 'McCarron'};
@@ -78,20 +80,20 @@ end
 
 % Arrays of field names and corresponding variables
 prefixes = {'theta_cr', 'tau_cr'};
-percentiles = {'Mg', '10', '50', '90'};
+fractions = {'Mg', '10', '50', '90', 'Fine', 'Coarse'};
 
 % Loop over prefixes, methods, and percentiles to assign values
 for p = 1:length(prefixes)
     for j = 1:num_methods
         method = crit_methods{j};
-        for perc = 1:length(percentiles)
-            fieldName = sprintf('%s%s_%s', prefixes{p}, percentiles{perc}, method);
+        for perc = 1:length(fractions)
+            fieldName = sprintf('%s%s_%s', prefixes{p}, fractions{perc}, method);
             GS_stats.(fieldName) = eval(sprintf('%s(:, %d, %d)', prefixes{p}, perc, j));
         end
     end
 end
 
-clearvars d10 d50 d90 fg theta_cr tau_cr crit_methods prefixes percentiles i j p perc num_methods num_percentiles method fieldName Mg Mg_a Mg_b d10_a d10_b d50_a d50_b d90_a d90_b fg_a fg_b
+clearvars d10 d50 d90 fg theta_cr tau_cr crit_methods prefixes percentiles i j p perc num_methods num_percentiles method fieldName Mg Mg_a Mg_b d10_a d10_b d50_a d50_b d90_a d90_b fg_a fg_b Fine Coarse
 
 
 %% Correct measured height of control volume above bed
@@ -135,12 +137,14 @@ n = length(timeAxis);
 emptyData = nan(n, length(instruments));
 
 % List of variable suffixes
-suffixes = {'tau_c', 'tau_w', 'tau_cw', 'theta_c10', 'theta_w10', 'theta_cw10', ...
-            'phi_b10', 'q_b10', 'theta_c50', 'theta_w50', 'theta_cw50', ...
-            'phi_b50', 'q_b50', 'theta_c90', 'theta_w90', 'theta_cw90', ...
-            'phi_b90', 'q_b90', 'long_sign', 'q_b10_net', 'q_b50_net', 'q_b90_net', ...
-            'theta_cMg', 'theta_wMg', 'theta_cwMg', 'phi_bMg', 'q_bMg', 'q_bMg_net', ...
-            'long_frac'};
+suffixes = {'tau_c', 'tau_w', 'tau_cw', ...
+    'theta_c10', 'theta_w10', 'theta_cw10', 'phi_b10', 'q_b10', 'q_b10_net', ...
+    'theta_c50', 'theta_w50', 'theta_cw50', 'phi_b50', 'q_b50', 'q_b50_net', ...
+    'theta_c90', 'theta_w90', 'theta_cw90', 'phi_b90', 'q_b90', 'q_b90_net', ...
+    'theta_cMg', 'theta_wMg', 'theta_cwMg', 'phi_bMg', 'q_bMg', 'q_bMg_net', ...
+    'theta_cFine', 'theta_wFine', 'theta_cwFine', 'phi_bFine', 'q_bFine', 'q_bFine_net', ...
+    'theta_cCoarse', 'theta_wCoarse', 'theta_cwCoarse', 'phi_bCoarse', 'q_bCoarse', 'q_bCoarse_net', ...
+    'long_sign', 'long_frac'};
 
 % Create a timetable for each suffix and assign variable names
 for i = 1:length(suffixes)
@@ -211,6 +215,8 @@ filename = [dataPath char(instruments(i)) filesep 'tailored_' char(instruments(i
     [theta_c10, theta_w10, theta_cw10] = compute_Shields(tau_c, tau_w, tau_cw, rho_s, rho_w, GS_stats.d10(i), g);
     [theta_c50, theta_w50, theta_cw50] = compute_Shields(tau_c, tau_w, tau_cw, rho_s, rho_w, GS_stats.d50(i), g);
     [theta_c90, theta_w90, theta_cw90] = compute_Shields(tau_c, tau_w, tau_cw, rho_s, rho_w, GS_stats.d90(i), g);
+    [theta_cFine, theta_wFine, theta_cwFine] = compute_Shields(tau_c, tau_w, tau_cw, rho_s, rho_w, GS_stats.Fine(i), g);
+    [theta_cCoarse, theta_wCoarse, theta_cwCoarse] = compute_Shields(tau_c, tau_w, tau_cw, rho_s, rho_w, GS_stats.Coarse(i), g);
 
     TT_theta_cMg.(i)(firstRow:lastRow) = theta_cMg;
     TT_theta_wMg.(i)(firstRow:lastRow) = theta_wMg;
@@ -228,6 +234,14 @@ filename = [dataPath char(instruments(i)) filesep 'tailored_' char(instruments(i
     TT_theta_w90.(i)(firstRow:lastRow) = theta_w90;
     TT_theta_cw90.(i)(firstRow:lastRow) = theta_cw90;
 
+    TT_theta_cFine.(i)(firstRow:lastRow) = theta_cFine;
+    TT_theta_wFine.(i)(firstRow:lastRow) = theta_wFine;
+    TT_theta_cwFine.(i)(firstRow:lastRow) = theta_cwFine;
+
+    TT_theta_cCoarse.(i)(firstRow:lastRow) = theta_cCoarse;
+    TT_theta_wCoarse.(i)(firstRow:lastRow) = theta_wCoarse;
+    TT_theta_cwCoarse.(i)(firstRow:lastRow) = theta_cwCoarse;
+
     % Nondimensional bedload predictors (gross)
     alpha = 11;  % calibration coefficient of Ribberink (1998)
     beta = 1.65; % calibration exponent
@@ -236,37 +250,49 @@ filename = [dataPath char(instruments(i)) filesep 'tailored_' char(instruments(i
     phi_b10 = compute_Einstein_parameter(TT_theta_cw10.(i), GS_stats.theta_cr10_McCarron(i), alpha, beta);
     phi_b50 = compute_Einstein_parameter(TT_theta_cw50.(i), GS_stats.theta_cr50_McCarron(i), alpha, beta);
     phi_b90 = compute_Einstein_parameter(TT_theta_cw90.(i), GS_stats.theta_cr90_McCarron(i), alpha, beta);
+    phi_bFine = compute_Einstein_parameter(TT_theta_cwFine.(i), GS_stats.theta_crFine_McCarron(i), alpha, beta);
+    phi_bCoarse = compute_Einstein_parameter(TT_theta_cwCoarse.(i), GS_stats.theta_crCoarse_McCarron(i), alpha, beta);
 
     TT_phi_bMg.(i) = phi_bMg;
     TT_phi_b10.(i) = phi_b10;
     TT_phi_b50.(i) = phi_b50;
     TT_phi_b90.(i) = phi_b90;
+    TT_phi_bFine.(i) = phi_bFine;
+    TT_phi_bCoarse.(i) = phi_bCoarse;
 
     % Dimensional bedload transport rate (gross)
     q_bMg = compute_transport_rate(phi_bMg, rho_w, rho_s, GS_stats.Mg(i), g);
     q_b10 = compute_transport_rate(phi_b10, rho_w, rho_s, GS_stats.d10(i), g);
     q_b50 = compute_transport_rate(phi_b50, rho_w, rho_s, GS_stats.d50(i), g);
     q_b90 = compute_transport_rate(phi_b90, rho_w, rho_s, GS_stats.d90(i), g);
+    q_bFine = compute_transport_rate(phi_bFine, rho_w, rho_s, GS_stats.Fine(i), g);
+    q_bCoarse = compute_transport_rate(phi_bCoarse, rho_w, rho_s, GS_stats.Coarse(i), g);
 
     TT_q_bMg.(i) = q_bMg;
     TT_q_b10.(i) = q_b10;
     TT_q_b50.(i) = q_b50;
     TT_q_b90.(i) = q_b90;
+    TT_q_bFine.(i) = q_bFine;
+    TT_q_bCoarse.(i) = q_bCoarse;
 
     % Dimensional bedload transport rate (net: longshore direction)
     q_bMg_net = TT_long_sign.(i) .* q_bMg .* TT_long_frac.(i);
     q_b10_net = TT_long_sign.(i) .* q_b10 .* TT_long_frac.(i);
     q_b50_net = TT_long_sign.(i) .* q_b50 .* TT_long_frac.(i);
     q_b90_net = TT_long_sign.(i) .* q_b90 .* TT_long_frac.(i);
+    q_bFine_net = TT_long_sign.(i) .* q_bFine .* TT_long_frac.(i);
+    q_bCoarse_net = TT_long_sign.(i) .* q_bCoarse .* TT_long_frac.(i);
 
     TT_q_bMg_net.(i) = q_bMg_net;
     TT_q_b10_net.(i) = q_b10_net;
     TT_q_b50_net.(i) = q_b50_net;
     TT_q_b90_net.(i) = q_b90_net;
+    TT_q_bFine_net.(i) = q_bFine_net;
+    TT_q_bCoarse_net.(i) = q_bCoarse_net;
 
 end
 
-clearvars dataPath dt emptyData filename firstRow h H i info k lastRow n phi_c phi_w t T tau_c tau_w tau_cw theta_c10 theta_c50 theta_c90 theta_w10 theta_w50 theta_w90 theta_cw10 theta_cw50 theta_cw90 timeAxis rho_w u_z u_c h Urms emptyData firstRow lastRow z z_new z_measured nonNaNValues nonNaNIndices interpolatedValues phi_b10 phi_b50 phi_b90 q_b10 q_b50 q_b90 uLong_z uLong_sign uLong_frac q_b10_net q_b50_net q_b90_net suffix suffixes timetableName tStart tEnd time t0 habCVnew theta_cMg theta_wMg theta_cwMg phi_bMg q_bMg q_bMg_net
+clearvars dataPath dt emptyData filename firstRow h H i info k lastRow n phi_c phi_w t T tau_c tau_w tau_cw theta_c10 theta_c50 theta_c90 theta_cFine theta_cCoarse theta_w10 theta_w50 theta_w90 theta_wFine theta_wCoarse theta_cw10 theta_cw50 theta_cw90 theta_cwFine theta_cwCoarse timeAxis rho_w u_z u_c h Urms emptyData firstRow lastRow z z_new z_measured nonNaNValues nonNaNIndices interpolatedValues phi_b10 phi_b50 phi_b90 phi_bFine phi_bCoarse q_b10 q_b50 q_b90 q_bFine q_bCoarse uLong_z uLong_sign uLong_frac q_b10_net q_b50_net q_b90_net q_bFine_net q_bCoarse_net suffix suffixes timetableName tStart tEnd time t0 habCVnew theta_cMg theta_wMg theta_cwMg phi_bMg q_bMg q_bMg_net
 
 
 %% Quality check
@@ -496,7 +522,8 @@ clearvars a b c threshold
 
 
 %% Calculations: relative importance current and waves (3/3)
-threshold = GS_stats.theta_cr50_McCarron;
+% threshold = GS_stats.theta_cr50_McCarron;
+threshold = GS_stats.theta_crMg_McCarron;
 
 % Initialize matrices to store percentages for each condition
 nCols = width(data_c);
@@ -543,7 +570,7 @@ clearvars data_c_col data_w_col sum_data non_nan_mask cond1 cond2 cond3 cond4 co
 
 %% Visualisation: relative importance current and waves (2/2)
 f2b = figure('Position',[740, 1665, 1719, 628]);
-tiledlayout(1,3, 'TileSpacing','tight')
+tiledlayout(1,3, 'TileSpacing','compact')
 
 j = 1;
 ax = gobjects(1,3);
@@ -572,11 +599,11 @@ for i = [1, 4, 6]
     text(4e-4, 2e-4, 'no motion', 'FontSize',fontsize*.6)
     
     % Add region fractions
-    text(8e-4, .2, [mat2str(percentage_cond1(i), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
-    text(.03, .2, [mat2str(percentage_cond2(i), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
-    text(.1, .03, [mat2str(percentage_cond3(i), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
-    text(.1, 1e-3, [mat2str(percentage_cond4(i), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
-    text(8e-4, 1e-3, [mat2str(percentage_cond5(i), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
+    text(8e-4, .2, [mat2str(round(percentage_cond1(i)), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
+    text(.03, .2, [mat2str(round(percentage_cond2(i)), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
+    text(.1, .03, [mat2str(round(percentage_cond3(i)), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
+    text(.1, 1e-3, [mat2str(round(percentage_cond4(i)), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
+    text(8e-4, 1e-3, [mat2str(round(percentage_cond5(i)), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
         
     % Set axes properties
     set(gca, 'XScale','log');
@@ -612,6 +639,8 @@ TT_theta_cwMg_NaN = TT_theta_cwMg;
 TT_theta_cw10_NaN = TT_theta_cw10;
 TT_theta_cw50_NaN = TT_theta_cw50;
 TT_theta_cw90_NaN = TT_theta_cw90;
+TT_theta_cwFine_NaN = TT_theta_cwFine;
+TT_theta_cwCoarse_NaN = TT_theta_cwCoarse;
 
 % Get the size of the timetable
 [numRows, numCols] = size(TT_theta_cw50_NaN);
@@ -625,6 +654,8 @@ for i = 1:numRows
         TT_theta_cw10_NaN{i, :} = NaN(1, numCols);
         TT_theta_cw50_NaN{i, :} = NaN(1, numCols);
         TT_theta_cw90_NaN{i, :} = NaN(1, numCols);
+        TT_theta_cwFine_NaN{i, :} = NaN(1, numCols);
+        TT_theta_cwCoarse_NaN{i, :} = NaN(1, numCols);
     end
 end
 
@@ -634,12 +665,12 @@ clearvars numRows numCols
 %% Computations: mobilisation duration (Shields)
 
 % Create an empty table
-percentExceed_Soulsby = array2table(NaN(length(instruLocs), length(GS_fractions(2:end))),...
-    'RowNames',instruLocs, 'VariableNames',GS_fractions(2:end));
-percentExceed_Egiazaroff = array2table(NaN(length(instruLocs), length(GS_fractions(2:end))),...
-    'RowNames',instruLocs, 'VariableNames',GS_fractions(2:end));
-percentExceed_McCarron = array2table(NaN(length(instruLocs), length(GS_fractions(2:end))),...
-    'RowNames',instruLocs, 'VariableNames',GS_fractions(2:end));
+percentExceed_Soulsby = array2table(NaN(length(instruLocs), length(GS_fractions)),...
+    'RowNames',instruLocs, 'VariableNames',GS_fractions);
+percentExceed_Egiazaroff = array2table(NaN(length(instruLocs), length(GS_fractions)),...
+    'RowNames',instruLocs, 'VariableNames',GS_fractions);
+percentExceed_McCarron = array2table(NaN(length(instruLocs), length(GS_fractions)),...
+    'RowNames',instruLocs, 'VariableNames',GS_fractions);
 
 % Get the frequency of the time axis
 dt = TT_theta_cw50_NaN.Properties.TimeStep;
@@ -652,31 +683,31 @@ totalDurationFraction = totalDuration_noNaN / totalDuration;
 
 % Calculate the time percentages of exceedance
 disp('McCarron:')
-% for i = 1:width(TT_theta_cwMg_NaN)
-% 
-%     % Find the moments when the threshold is exceeded
-%     exceededTimes_Soulsby = sum(TT_theta_cwMg_NaN.(i) > GS_stats.theta_crMg_Soulsby(i));
-%     exceededTimes_Egiazaroff = sum(TT_theta_cwMg_NaN.(i) > GS_stats.theta_crMg_Soulsby(i));
-%     exceededTimes_McCarron = sum(TT_theta_cwMg_NaN.(i) > GS_stats.theta_crMg_McCarron(i));
-% 
-%     % Find the duration when the threshold is exceeded
-%     exceededDuration_Soulsby = exceededTimes_Soulsby*dt;
-%     percent_Mg_Soulsby = exceededDuration_Soulsby/totalDuration_noNaN*100;
-%     exceededDuration_Egiazaroff = exceededTimes_Egiazaroff*dt;
-%     percent_Mg_Egiazaroff = exceededDuration_Egiazaroff/totalDuration_noNaN*100;
-%     exceededDuration_McCarron = exceededTimes_McCarron*dt;
-%     percent_Mg_McCarron = exceededDuration_McCarron/totalDuration_noNaN*100;
-% 
-%     % Append the percentage value to the table
-%     percentExceed_Soulsby.Mg(i) = percent_Mg_Soulsby;
-%     percentExceed_Egiazaroff.Mg(i) = percent_Mg_Egiazaroff;
-%     percentExceed_McCarron.Mg(i) = percent_Mg_McCarron;
-% 
-%     % Display the total duration
-%     disp(['Threshold Mg at ', char(instruLocs(i)), ' exceeded: ', char(exceededDuration_McCarron),...
-%         ' h (', num2str(percent_Mg_McCarron, 2),'%) of ', char(totalDuration_noNaN), ' h']);
-% 
-% end
+for i = 1:width(TT_theta_cwMg_NaN)
+
+    % Find the moments when the threshold is exceeded
+    exceededTimes_Soulsby = sum(TT_theta_cwMg_NaN.(i) > GS_stats.theta_crMg_Soulsby(i));
+    exceededTimes_Egiazaroff = sum(TT_theta_cwMg_NaN.(i) > GS_stats.theta_crMg_Soulsby(i));
+    exceededTimes_McCarron = sum(TT_theta_cwMg_NaN.(i) > GS_stats.theta_crMg_McCarron(i));
+
+    % Find the duration when the threshold is exceeded
+    exceededDuration_Soulsby = exceededTimes_Soulsby*dt;
+    percent_Mg_Soulsby = exceededDuration_Soulsby/totalDuration_noNaN*100;
+    exceededDuration_Egiazaroff = exceededTimes_Egiazaroff*dt;
+    percent_Mg_Egiazaroff = exceededDuration_Egiazaroff/totalDuration_noNaN*100;
+    exceededDuration_McCarron = exceededTimes_McCarron*dt;
+    percent_Mg_McCarron = exceededDuration_McCarron/totalDuration_noNaN*100;
+
+    % Append the percentage value to the table
+    percentExceed_Soulsby.Mg(i) = percent_Mg_Soulsby;
+    percentExceed_Egiazaroff.Mg(i) = percent_Mg_Egiazaroff;
+    percentExceed_McCarron.Mg(i) = percent_Mg_McCarron;
+
+    % Display the total duration
+    disp(['Threshold Mg at ', char(instruLocs(i)), ' exceeded: ', char(exceededDuration_McCarron),...
+        ' h (', num2str(percent_Mg_McCarron, 2),'%) of ', char(totalDuration_noNaN), ' h']);
+
+end
 
 for i = 1:width(TT_theta_cw10_NaN)
 
@@ -753,6 +784,58 @@ for i = 1:width(TT_theta_cw90_NaN)
     % Display the total duration
     disp(['Threshold d90 at ', char(instruLocs(i)), ' exceeded: ', char(exceededDuration_McCarron),...
         ' h (', num2str(percent_d90_McCarron, 2),'%) of ', char(totalDuration_noNaN), ' h']);
+
+end
+
+for i = 1:width(TT_theta_cwFine_NaN)
+
+    % Find the moments when the threshold is exceeded
+    exceededTimes_Soulsby = sum(TT_theta_cwFine_NaN.(i) > GS_stats.theta_crFine_Soulsby(i));
+    exceededTimes_Egiazaroff = sum(TT_theta_cwFine_NaN.(i) > GS_stats.theta_crFine_Egiazaroff(i));
+    exceededTimes_McCarron = sum(TT_theta_cwFine_NaN.(i) > GS_stats.theta_crFine_McCarron(i));
+        
+    % Find the duration when the threshold is exceeded
+    exceededDuration_Soulsby = exceededTimes_Soulsby*dt;
+    percent_Fine_Soulsby = exceededDuration_Soulsby/totalDuration_noNaN*100;
+    exceededDuration_Egiazaroff = exceededTimes_Egiazaroff*dt;
+    percent_Fine_Egiazaroff = exceededDuration_Egiazaroff/totalDuration_noNaN*100;
+    exceededDuration_McCarron = exceededTimes_McCarron*dt;
+    percent_Fine_McCarron = exceededDuration_McCarron/totalDuration_noNaN*100;
+
+    % Append the percentage value to the table
+    percentExceed_Soulsby.Fine(i) = percent_Fine_Soulsby;
+    percentExceed_Egiazaroff.Fine(i) = percent_Fine_Egiazaroff;
+    percentExceed_McCarron.Fine(i) = percent_Fine_McCarron;
+    
+    % Display the total duration
+    disp(['Threshold Fine at ', char(instruLocs(i)), ' exceeded: ', char(exceededDuration_McCarron),...
+        ' h (', num2str(percent_Fine_McCarron, 2),'%) of ', char(totalDuration_noNaN), ' h']);
+
+end
+
+for i = 1:width(TT_theta_cwCoarse_NaN)
+
+    % Find the moments when the threshold is exceeded
+    exceededTimes_Soulsby = sum(TT_theta_cwCoarse_NaN.(i) > GS_stats.theta_crCoarse_Soulsby(i));
+    exceededTimes_Egiazaroff = sum(TT_theta_cwCoarse_NaN.(i) > GS_stats.theta_crCoarse_Egiazaroff(i));
+    exceededTimes_McCarron = sum(TT_theta_cwCoarse_NaN.(i) > GS_stats.theta_crCoarse_McCarron(i));
+        
+    % Find the duration when the threshold is exceeded
+    exceededDuration_Soulsby = exceededTimes_Soulsby*dt;
+    percent_Coarse_Soulsby = exceededDuration_Soulsby/totalDuration_noNaN*100;
+    exceededDuration_Egiazaroff = exceededTimes_Egiazaroff*dt;
+    percent_Coarse_Egiazaroff = exceededDuration_Egiazaroff/totalDuration_noNaN*100;
+    exceededDuration_McCarron = exceededTimes_McCarron*dt;
+    percent_Coarse_McCarron = exceededDuration_McCarron/totalDuration_noNaN*100;
+
+    % Append the percentage value to the table
+    percentExceed_Soulsby.Coarse(i) = percent_Coarse_Soulsby;
+    percentExceed_Egiazaroff.Coarse(i) = percent_Coarse_Egiazaroff;
+    percentExceed_McCarron.Coarse(i) = percent_Coarse_McCarron;
+    
+    % Display the total duration
+    disp(['Threshold Coarse at ', char(instruLocs(i)), ' exceeded: ', char(exceededDuration_McCarron),...
+        ' h (', num2str(percent_Coarse_McCarron, 2),'%) of ', char(totalDuration_noNaN), ' h']);
 
 end
 
@@ -1012,36 +1095,50 @@ TT_theta_cMg_NaN = TT_theta_cMg;
 TT_theta_c10_NaN = TT_theta_c10;
 TT_theta_c50_NaN = TT_theta_c50;
 TT_theta_c90_NaN = TT_theta_c90;
+TT_theta_cFine_NaN = TT_theta_cFine;
+TT_theta_cCoarse_NaN = TT_theta_cCoarse;
 
 TT_theta_wMg_NaN = TT_theta_wMg;
 TT_theta_w10_NaN = TT_theta_w10;
 TT_theta_w50_NaN = TT_theta_w50;
 TT_theta_w90_NaN = TT_theta_w90;
+TT_theta_wFine_NaN = TT_theta_wFine;
+TT_theta_wCoarse_NaN = TT_theta_wCoarse;
 
 TT_theta_cwMg_NaN = TT_theta_cwMg;
 TT_theta_cw10_NaN = TT_theta_cw10;
 TT_theta_cw50_NaN = TT_theta_cw50;
 TT_theta_cw90_NaN = TT_theta_cw90;
+TT_theta_cwFine_NaN = TT_theta_cwFine;
+TT_theta_cwCoarse_NaN = TT_theta_cwCoarse;
 
 TT_phi_bMg_NaN = TT_phi_bMg;
 TT_phi_b10_NaN = TT_phi_b10;
 TT_phi_b50_NaN = TT_phi_b50;
 TT_phi_b90_NaN = TT_phi_b90;
+TT_phi_bFine_NaN = TT_phi_bFine;
+TT_phi_bCoarse_NaN = TT_phi_bCoarse;
 
 TT_q_bMg_NaN = TT_q_bMg;
 TT_q_b10_NaN = TT_q_b10;
 TT_q_b50_NaN = TT_q_b50;
 TT_q_b90_NaN = TT_q_b90;
+TT_q_bFine_NaN = TT_q_bFine;
+TT_q_bCoarse_NaN = TT_q_bCoarse;
 
 TT_q_bMg_zeros = TT_q_bMg;
 TT_q_b10_zeros = TT_q_b10;
 TT_q_b50_zeros = TT_q_b50;
 TT_q_b90_zeros = TT_q_b90;
+TT_q_bFine_zeros = TT_q_bFine;
+TT_q_bCoarse_zeros = TT_q_bCoarse;
 
 TT_q_bMg_net_zeros = TT_q_bMg_net;
 TT_q_b10_net_zeros = TT_q_b10_net;
 TT_q_b50_net_zeros = TT_q_b50_net;
 TT_q_b90_net_zeros = TT_q_b90_net;
+TT_q_bFine_net_zeros = TT_q_bFine_net;
+TT_q_bCoarse_net_zeros = TT_q_bCoarse_net;
 
 % Assign NaNs to the entire row
 TT_tau_c_NaN{nanRowIndices, :} = NaN;
@@ -1052,37 +1149,51 @@ TT_theta_cMg_NaN{nanRowIndices, :} = NaN;
 TT_theta_c10_NaN{nanRowIndices, :} = NaN;
 TT_theta_c50_NaN{nanRowIndices, :} = NaN;
 TT_theta_c90_NaN{nanRowIndices, :} = NaN;
+TT_theta_cFine_NaN{nanRowIndices, :} = NaN;
+TT_theta_c90_NaN{nanRowIndices, :} = NaN;
 
 TT_theta_wMg_NaN{nanRowIndices, :} = NaN;
 TT_theta_w10_NaN{nanRowIndices, :} = NaN;
 TT_theta_w50_NaN{nanRowIndices, :} = NaN;
 TT_theta_w90_NaN{nanRowIndices, :} = NaN;
+TT_theta_wFine_NaN{nanRowIndices, :} = NaN;
+TT_theta_wCoarse_NaN{nanRowIndices, :} = NaN;
 
 TT_theta_cwMg_NaN{nanRowIndices, :} = NaN;
 TT_theta_cw10_NaN{nanRowIndices, :} = NaN;
 TT_theta_cw50_NaN{nanRowIndices, :} = NaN;
 TT_theta_cw90_NaN{nanRowIndices, :} = NaN;
+TT_theta_cwFine_NaN{nanRowIndices, :} = NaN;
+TT_theta_cwCoarse_NaN{nanRowIndices, :} = NaN;
 
 TT_phi_bMg_NaN{nanRowIndices, :} = NaN;
 TT_phi_b10_NaN{nanRowIndices, :} = NaN;
 TT_phi_b50_NaN{nanRowIndices, :} = NaN;
 TT_phi_b90_NaN{nanRowIndices, :} = NaN;
+TT_phi_bFine_NaN{nanRowIndices, :} = NaN;
+TT_phi_bCoarse_NaN{nanRowIndices, :} = NaN;
 
 TT_q_bMg_NaN{nanRowIndices, :} = NaN;
 TT_q_b10_NaN{nanRowIndices, :} = NaN;
 TT_q_b50_NaN{nanRowIndices, :} = NaN;
 TT_q_b90_NaN{nanRowIndices, :} = NaN;
+TT_q_bFine_NaN{nanRowIndices, :} = NaN;
+TT_q_bCoarse_NaN{nanRowIndices, :} = NaN;
 
 % Assign zeros to the entire row
 TT_q_bMg_zeros{nanRowIndices, :} = 0;
 TT_q_b10_zeros{nanRowIndices, :} = 0;
 TT_q_b50_zeros{nanRowIndices, :} = 0;
 TT_q_b90_zeros{nanRowIndices, :} = 0;
+TT_q_bFine_zeros{nanRowIndices, :} = 0;
+TT_q_bCoarse_zeros{nanRowIndices, :} = 0;
 
 TT_q_bMg_net_zeros{nanRowIndices, :} = 0;
 TT_q_b10_net_zeros{nanRowIndices, :} = 0;
 TT_q_b50_net_zeros{nanRowIndices, :} = 0;
 TT_q_b90_net_zeros{nanRowIndices, :} = 0;
+TT_q_bFine_net_zeros{nanRowIndices, :} = 0;
+TT_q_bCoarse_net_zeros{nanRowIndices, :} = 0;
 
 clearvars nanRows nanRowIndices
 
@@ -1092,6 +1203,8 @@ Mg = NaN(length(instruLocs), 1);
 d10 = NaN(length(instruLocs), 1);
 d50 = NaN(length(instruLocs), 1);
 d90 = NaN(length(instruLocs), 1);
+Fine = NaN(length(instruLocs), 1);
+Coarse = NaN(length(instruLocs), 1);
 
 % Convert datetime to duration and then to seconds
 time_seconds = seconds(TT_q_b10_zeros.Time - TT_q_b10_zeros.Time(1));
@@ -1103,12 +1216,14 @@ for i = 1:length(instruLocs)
     d10(i) = trapz(time_seconds, TT_q_b10_zeros.(i));
     d50(i) = trapz(time_seconds, TT_q_b50_zeros.(i));
     d90(i) = trapz(time_seconds, TT_q_b90_zeros.(i));
-    
+    Fine(i) = trapz(time_seconds, TT_q_bFine_zeros.(i));
+    Coarse(i) = trapz(time_seconds, TT_q_bCoarse_zeros.(i));
+
     % Display the result
     % fprintf('Total amount of bedload transport: %.2f m^3/m width\n', totalBedload);
 end
 
-totalBedload_gross = table(d10, d50, d90, 'RowNames', flipud(instruLocs));
+totalBedload_gross = table(Mg, d10, d50, d90, Fine, Coarse, 'RowNames', flipud(instruLocs));
 
 % Calculate mean row and column
 meanRow = mean(totalBedload_gross.Variables, 1);
@@ -1118,7 +1233,7 @@ meanCol = mean(totalBedload_gross.Variables, 2);
 totalBedload_gross{'Mean', :} = meanRow;
 totalBedload_gross.Mean = [meanCol; mean(meanRow)];
 
-clearvars Mg d10 d50 d90 i meanCol meanRow time_seconds
+clearvars Mg d10 d50 d90 Fine Coarse i meanCol meanRow time_seconds
 
 
 %% Calculation: Total Bedload Transport Volume (Net)
@@ -1126,6 +1241,8 @@ Mg = NaN(length(instruLocs), 1);
 d10 = NaN(length(instruLocs), 1);
 d50 = NaN(length(instruLocs), 1);
 d90 = NaN(length(instruLocs), 1);
+Fine = NaN(length(instruLocs), 1);
+Coarse = NaN(length(instruLocs), 1);
 
 % Convert datetime to duration and then to seconds
 time_seconds = seconds(TT_q_b10_net_zeros.Time - TT_q_b10_net_zeros.Time(1));
@@ -1137,12 +1254,14 @@ for i = 1:length(instruLocs)
     d10(i) = trapz(time_seconds, TT_q_b10_net_zeros.(i));
     d50(i) = trapz(time_seconds, TT_q_b50_net_zeros.(i));
     d90(i) = trapz(time_seconds, TT_q_b90_net_zeros.(i));
-    
+    Fine(i) = trapz(time_seconds, TT_q_bFine_net_zeros.(i));
+    Coarse(i) = trapz(time_seconds, TT_q_bCoarse_net_zeros.(i));
+
     % Display the result
     % fprintf('Total amount of bedload transport: %.2f m^3/m width\n', totalBedload);
 end
 
-totalBedload_net = table(d10, d50, d90, 'RowNames', flipud(instruLocs));
+totalBedload_net = table(Mg, d10, d50, d90, Fine, Coarse, 'RowNames', flipud(instruLocs));
 
 % Calculate mean row and column
 meanRow = mean(totalBedload_net.Variables, 1);
@@ -1152,7 +1271,7 @@ meanCol = mean(totalBedload_net.Variables, 2);
 totalBedload_net{'Mean', :} = meanRow;
 totalBedload_net.Mean = [meanCol; mean(meanRow)];
 
-clearvars Mg d10 d50 d90 i meanCol meanRow time_seconds
+clearvars Mg d10 d50 d90 Fine Coarse i meanCol meanRow time_seconds
 
 
 %% Visualisation: Bed Shear Stress (timeseries)

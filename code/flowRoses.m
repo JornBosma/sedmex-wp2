@@ -1,7 +1,7 @@
 %% Initialisation
-% close all
-% clear
-% clc
+close all
+clear
+clc
 
 [~, fontsize, ~, ~, ~] = sedmex_init;
 % fontsize = 22; % ultra-wide screen
@@ -14,6 +14,8 @@ coastAngleSdeg = 40; % coastline angle southern beach [deg North]
 
 coastAngleN = deg2rad(90-coastAngleNdeg); % coastline angle northern beach [rad wrt East]
 coastAngleS = deg2rad(90-coastAngleSdeg); % coastline angle southern beach [rad wrt East]
+
+% angleDeg = -(rad2deg(angleRad)-90);
 
 
 %% Correct measured height of control volume above bed
@@ -52,6 +54,8 @@ for n = 1:length(adv_names)
     % z = ncread(ADVpath, 'h');
     h = ncread(ADVpath, 'd');
     Uz = ncread(ADVpath, 'umag');
+    Ulong = ncread(ADVpath, 'ulm');
+    Ucros = ncread(ADVpath, 'ucm');
     Udir = ncread(ADVpath, 'uang');
     Hm0 = ncread(ADVpath, 'Hm0');
     Hdir = ncread(ADVpath, 'puvdir');
@@ -62,7 +66,9 @@ for n = 1:length(adv_names)
     z = habCVnew.(adv_names{n});
 
     % Estimate the depth-averaged current velocity
-    [Uc, ~] = compute_DAV(abs(Uz), z, k_sc, h);
+    [Ud, ~] = compute_DAV(abs(Uz), z, k_sc, h);
+    [Udl, ~] = compute_DAV(abs(Ulong), z, k_sc, h);
+    [Udc, ~] = compute_DAV(abs(Ucros), z, k_sc, h);
 
     % % Convert Cartesian direction convention into Nautical direction
     % Uang = wrapTo360(90-Uang);
@@ -73,15 +79,15 @@ for n = 1:length(adv_names)
     % buried2 = U < .002;
     % 
     % t(buried1 | buried2) = NaN;
-    % Uc(buried1 | buried2) = NaN;
+    % Ud(buried1 | buried2) = NaN;
     % Uang(buried1 | buried2) = NaN;
     % Hm0(buried1 | buried2) = NaN;
     % Hdir(buried1 | buried2) = NaN;
 
-    TT{n} = timetable(time, z, Uz, Uc, Udir, Hm0, Hdir);
+    TT{n} = timetable(time, z, Uz, Ud, Udl, Udc, Udir, Hm0, Hdir);
 end
 
-clearvars t0 t info h Uz Udir Hm0 Hdir time habCVnew z Uc n hab_measured dataPath ADVpath
+clearvars t0 t info h Uz Udir Hm0 Hdir time habCVnew z Ud Udl Udc n hab_measured dataPath ADVpath Ulong Ucros
 
 
 %% Isolate the variables
@@ -120,59 +126,67 @@ end
 t = TT{1}.time;
 z = collectedVariables{1};
 Uz = collectedVariables{2};
-Uc = collectedVariables{3};
-Udir = collectedVariables{4};
-Hm0 = collectedVariables{5};
-Hdir = collectedVariables{6};
+Ud = collectedVariables{3};
+Udl = collectedVariables{4};
+Udc = collectedVariables{5};
+Udir = collectedVariables{6};
+Hm0 = collectedVariables{7};
+Hdir = collectedVariables{8};
 
-clearvars i commonTime TT variableNames numVars numTimes collectedVariables varData v
+clearvars i commonTime variableNames numVars numTimes collectedVariables varData v
 
 
 %% Reduce dataset to noNaN-only
 
 % Step 1: Identify rows with NaNs
-rowsWithNaNs = any(isnan(Uc), 2);
+rowsWithNaNs = any(isnan(Ud), 2);
 
 % Step 2: Remove these rows
 t_clean = t(~rowsWithNaNs, :);
 z_clean = z(~rowsWithNaNs, :);
 Uz_clean = Uz(~rowsWithNaNs, :);
-Uc_clean = Uc(~rowsWithNaNs, :);
+Ud_clean = Ud(~rowsWithNaNs, :);
+Udl_clean = Udl(~rowsWithNaNs, :);
+Udc_clean = Udc(~rowsWithNaNs, :);
 Udir_clean = Udir(~rowsWithNaNs, :);
 Hm0_clean = Hm0(~rowsWithNaNs, :);
 Hdir_clean = Hdir(~rowsWithNaNs, :);
 
-clearvars rowsWithNaNs
+% Create timetable
+T_clean = table(t_clean, z_clean, Uz_clean, Ud_clean, Udl_clean, Udc_clean, Udir_clean, Hm0_clean, Hdir_clean);
+TT_clean = table2timetable(T_clean);
+
+clearvars rowsWithNaNs T t_clean z_clean Uz_clean Ud_clean Udir_clean Hm0_clean Hdir_clean t z Uz Ud Udc Udl Udir Hm0 Hdir Udc_clean Udl_clean
 
 
 %% Check timeseries
-figureRH;
-tiledlayout(2,1)
-
-nexttile
-scatter(t(1000:end,:), Uc(1000:end,:), 200)
-ylabel('U (m/s)')
-legend(adv_names, "Location","northeastoutside")
-
-nexttile
-scatter(t(1000:end,:), Hm0(1000:end,:), 200)
-ylabel('H_{m0} (m)')
-xlabel('minutes')
-
-zoom xon
+% figureRH;
+% tiledlayout(2,1)
+% 
+% nexttile
+% scatter(TT.time(1000:end,:), TT.Ud(1000:end,:), 200)
+% ylabel('U (m/s)')
+% legend(adv_names, "Location","northeastoutside")
+% 
+% nexttile
+% scatter(TT.time(1000:end,:), TT.Hm0(1000:end,:), 200)
+% ylabel('H_{m0} (m)')
+% xlabel('minutes')
+% 
+% zoom xon
 
 
 %% Longshore flow roses
 
 % Preallocate a 1x6 array of Axes objects
-ax = gobjects(1, size(Uc_clean, 2));
+ax = gobjects(1, size(TT_clean.Ud_clean, 2));
 
 f1 = figure(Position=[740 1665 1719 628]);
 tiledlayout(1, 6, "TileSpacing","compact");
-for i = 1:size(Uc_clean, 2)
+for i = 1:size(TT_clean.Ud_clean, 2)
     ax(i) = nexttile; plot([],[]);
     Options = flowRoseOptions(fontsize, i);
-    WindRose(Udir_clean(:,i), Uc_clean(:,i), Options)
+    WindRose(TT_clean.Udir_clean(:,i), TT_clean.Ud_clean(:,i), Options)
     % camroll(-46)  % Rotate diagrams to match contour map orientation
 
     % plot coastline orientations
@@ -183,18 +197,20 @@ for i = 1:size(Uc_clean, 2)
     line([-cos(coastAngleS), -cos(coastAngleS)*.1], [-sin(coastAngleS), -sin(coastAngleS)*.1], 'Color','k', 'LineStyle',':', 'LineWidth',2, 'HandleVisibility','off') 
 end
 
+clearvars i
+
 
 %% Longshore wave roses
 
 % Preallocate a 1x6 array of Axes objects
-ax = gobjects(1, size(Hm0_clean, 2));
+ax = gobjects(1, size(TT_clean.Hm0_clean, 2));
 
 f2 = figure(Position=[740 957 1719 628]);
 tiledlayout(1, 6, "TileSpacing","compact");
-for i = 1:size(Hm0_clean, 2)
+for i = 1:size(TT_clean.Hm0_clean, 2)
     ax(i) = nexttile; plot([],[]);
     Options = waveRoseOptions(fontsize, i);
-    WindRose(Hdir_clean(:,i), Hm0_clean(:,i), Options)
+    WindRose(TT_clean.Hdir_clean(:,i), TT_clean.Hm0_clean(:,i), Options)
     % camroll(-46)  % Rotate diagrams to match contour map orientation
 
     % plot coastline orientations
@@ -205,3 +221,54 @@ for i = 1:size(Hm0_clean, 2)
     line([-cos(coastAngleS), -cos(coastAngleS)*.1], [-sin(coastAngleS), -sin(coastAngleS)*.1], 'Color','k', 'LineStyle',':', 'LineWidth',2, 'HandleVisibility','off')
 end
 
+clearvars i
+
+
+%% Additional calculations (not correct!)
+
+% Wrap wave directions to [0, 360) and convert to arrival direction
+waveDir = wrapTo360(-(TT_clean.Hdir_clean-90-180));
+mean(waveDir, 'omitmissing')
+mean(waveDir, 'all', 'omitmissing')
+
+% Calculate shore normals
+shoreNormalS = coastAngleSdeg + 90;
+shoreNormalN = coastAngleNdeg + 90;
+
+% Initialize waveDir_shoreNormal with NaN values
+waveDir_shoreNormal = nan(size(waveDir));
+
+% Calculate angle differences
+waveDir_shoreNormal(:, [1, 2]) = wrapTo360(abs(shoreNormalS - waveDir(:, [1, 2])));
+waveDir_shoreNormal(:, 3:end) = wrapTo360(abs(shoreNormalN - waveDir(:, 3:end)));
+
+% Find the smallest angle by ensuring it lies within [0, 180] degrees
+waveDir_shoreNormal = min(waveDir_shoreNormal, 360 - waveDir_shoreNormal);
+
+% Calculate the mean wave angle wrt shore normal
+mean(waveDir_shoreNormal, 'omitmissing')
+
+%%
+
+% Cross-shore v. longshore current
+ratio_crossLong = mean(TT_clean.Udc_clean, 'omitmissing') ./ mean(TT_clean.Udl_clean, 'omitmissing') .* 100
+ratio_crossLong_mean = mean(ratio_crossLong)
+
+% Mean wave height
+meanHm0 = mean(TT_clean.Hm0_clean, 'omitmissing')
+meanHm0S = mean(meanHm0(1:2))
+meanHm0N = mean(meanHm0(3:end))
+ratio_Hm0_SN = meanHm0S/meanHm0N*100
+100 - ratio_Hm0_SN
+
+% Mean storm wave height
+startDate = datetime(2021, 9, 27);
+endDate = datetime(2021, 10, 6);
+stormTT = TT_clean(TT_clean.t_clean >= startDate & TT_clean.t_clean <= endDate, :);
+stormHm0 = stormTT.Hm0_clean;
+
+meanHm0 = mean(stormHm0, 'omitmissing');
+meanHm0S = mean(meanHm0(1:2))
+meanHm0N = mean(meanHm0(3:end))
+ratio_Hm0_SN = meanHm0S/meanHm0N*100
+100 - ratio_Hm0_SN

@@ -147,3 +147,35 @@ lgnd = legend([c1, c2, s1, s2], {'intertidal zone', 'max tidal range', 'instrume
 % Legend
 % lgnd = legend([c1,c2,c3,c4], {num2str(SEDMEX.MeanHW, 2), num2str(SEDMEX.MeanLW, 2), '-0.75', '-1.40'},...
 %     'Position',[0.1313, 0.4876, 0.0779, 0.1247]);
+
+% % Define the scale bar length (in the units of your plot)
+% scale_length = 500;
+% 
+% % Define the position of the scale bar on the plot
+% x_start = min(A.DEM.X(:)) + 0.01 * range(A.DEM.X(:)); % 10% from the left edge
+% y_start = min(A.DEM.Y(:)) + 0.1 * range(A.DEM.Y(:)); % 10% from the bottom edge
+% z_position = min(A.DEM.Z(:)); % Set the Z position of the scale bar
+% 
+% % Draw the scale bar
+% x_end = x_start + scale_length;
+% plot3([x_start, x_end], [y_start, y_start], [z_position, z_position], 'k', 'LineWidth', 3);
+% 
+% % Add a text label for the scale bar
+% text(x_start + scale_length/2, y_start, z_position, sprintf('%d m', scale_length), ...
+%     'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'center', 'FontSize', fontsize, 'Color', 'k');
+
+
+%% Additional calculations
+
+% Define the xy-coordinates
+xy_coords = [GS_LS.xRD_m, GS_LS.yRD_m];
+
+% Calculate the differences in x and y coordinates between successive points
+diff_x = diff(xy_coords(:, 1));
+diff_y = diff(xy_coords(:, 2));
+
+% Calculate the Euclidean distances
+distances = sqrt(diff_x.^2 + diff_y.^2);
+
+% Display the result
+disp(distances);

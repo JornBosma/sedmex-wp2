@@ -4,6 +4,7 @@ clear
 clc
 
 [~, ~, cbf, ~, ~] = sedmex_init;
+% fontsize = 30; % ultra-wide screen
 
 folderPath = [filesep 'Volumes' filesep 'T7 Shield' filesep 'DataDescriptor' filesep];
 
@@ -117,34 +118,34 @@ clearvars GS_20210921 GS_20210928 GS_L2 sieveSizes_20210921 sieveSizes_20210928 
 
 
 %% Visualisation
-n = 1; % Select the table index
-f1 = gobjects(height(massRetained{n}), 1);
-
-for i = 1%:height(tables{n}) % Loop through each row of the selected table
-    
-    sieveDiam = [sieveSizes{n}.*1e-3, 16]; % in mm
-    sieveData = massRetained{n}(i, :);
-
-    % % Relative?
-    % binWidth = diff(sieveDiam);
-    % relativeMass = sieveData ./ binWidth;
-
-    f1(i) = figure('Position', [740, 1873, 560, 420]);
-    histogram('BinEdges',sieveDiam, 'BinCounts',sieveData, ...
-        'Normalization','percentage', 'FaceAlpha',.5, 'FaceColor',cbf.orange)
-
-    xlabel('Particle diameter (mm)');
-    set(gca, 'XScale', 'log'); % Set x-axis to logarithmic scale
-    xticks([0.1, 1, 10])
-    ytickformat("percentage")
-
-end
-
-clearvars n i sieveDiam sieveData binWidth relativeMass
+% n = 1; % Select the table index
+% f1 = gobjects(height(massRetained{n}), 1);
+% 
+% for i = 1%:height(tables{n}) % Loop through each row of the selected table
+% 
+%     sieveDiam = [sieveSizes{n}.*1e-3, 16]; % in mm
+%     sieveData = massRetained{n}(i, :);
+% 
+%     % % Relative?
+%     % binWidth = diff(sieveDiam);
+%     % relativeMass = sieveData ./ binWidth;
+% 
+%     f1(i) = figure('Position', [740, 1873, 560, 420]);
+%     histogram('BinEdges',sieveDiam, 'BinCounts',sieveData, ...
+%         'Normalization','percentage', 'FaceAlpha',.5, 'FaceColor',cbf.orange)
+% 
+%     xlabel('Particle diameter (mm)');
+%     set(gca, 'XScale', 'log'); % Set x-axis to logarithmic scale
+%     xticks([0.1, 1, 10])
+%     ytickformat("percentage")
+% 
+% end
+% 
+% clearvars n i sieveDiam sieveData binWidth relativeMass
 
 
 %% Visualisation (0 v. -0.8)
-n = 1; % Select the table index
+n = 2; % Select the table index
 sieveDiam = [sieveSizes{n}.*1e-3, 16]; % in mm
 sieveData = massRetained{n}([1:3, 5:end], :);
 f2 = gobjects(height(sieveData)/2, 1);

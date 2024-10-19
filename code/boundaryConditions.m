@@ -17,6 +17,9 @@ XsamplingDates = [datetime('20-Sep-2021'); datetime('28-Sep-2021');...
 YsamplingDates = [datetime('21-Sep-2021'); datetime('28-Sep-2021');...
     datetime('03-Oct-2021'); datetime('08-Oct-2021')];
 
+stormy_period = [datetime('27-Sep-2021 12:00'), datetime('05-Oct-2021 18:00')];
+storm_period = [datetime('30-Sep-2021 16:00'), datetime('03-Oct-2021 03:00')];
+
 
 %% Monitoring period
 
@@ -149,8 +152,20 @@ ax(3) = nexttile;
 hold on
 plot(TT_L2C10.t, TTl_L2C10.Hm0, 'Color','k', 'LineWidth',3)
 plot(TT_L2C10.t, TTh_L2C10.Hm0, 'Color','r', 'LineWidth',3)
+
+% Get the current y-axis limits
+ylim_vals = ylim();
+
+% Add downward-pointing triangle markers at the top, slightly above the upper y-axis limit
+y_marker_position1 = ylim_vals(2) + 0.05 * (ylim_vals(2) - ylim_vals(1));  % 5% above the upper limit
+y_marker_position2 = y_marker_position1 + 0.05 * (ylim_vals(2) - ylim_vals(1));  % 5% above y_marker_position1
+plot(XsamplingDates, repmat(y_marker_position1, size(XsamplingDates)), 'v', 'MarkerSize', 10, ...
+    'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none')
+plot(YsamplingDates, repmat(y_marker_position2, size(YsamplingDates)), 'v', 'MarkerSize', 10, ...
+    'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'none')
 hold off
-yline(Hm0_threshold, '--', '            \mu+2\sigma', 'LineWidth',3,...
+
+yline(Hm0_threshold, '--', '            \mu+2σ', 'LineWidth',3,...
     'FontSize',fontsize*.8, 'LabelHorizontalAlignment','left')
 ylabel('H_{m0} (m)', 'FontSize',fontsize*.8)
 yticks(0:.2:.6)
@@ -238,15 +253,17 @@ yticks(ax(6), -1:.5:1.5)
 % yticks([ax(2), ax(4)], 0:90:360)
 
 % Add figure annotations
-annotation('textbox', [0.9, 0.87, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
-annotation('textbox', [0.9, 0.666, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
-annotation('textbox', [0.9, 0.464, 0.1, 0.1], 'String','(c)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
-annotation('textbox', [0.9, 0.261, 0.1, 0.1], 'String','(d)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.94, 0.87, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.94, 0.666, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.94, 0.464, 0.1, 0.1], 'String','(c)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.94, 0.261, 0.1, 0.1], 'String','(d)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
 
 % Add sediment sampling moments
 for i = 3:6
-    xline(ax(i), XsamplingDates, '-', 'LineWidth',2, 'Color','b', 'HandleVisibility','off')
-    xline(ax(i), YsamplingDates, '--', 'LineWidth',2, 'Color','g', 'HandleVisibility','off')
+    % xline(ax(i), XsamplingDates, '-', 'LineWidth',2, 'Color','b', 'HandleVisibility','off')
+    % xline(ax(i), YsamplingDates, '--', 'LineWidth',2, 'Color','g', 'HandleVisibility','off')
+    xregion(ax(i), stormy_period, 'HandleVisibility','off', 'FaceColor',[.7 .7 .7])
+    xregion(ax(i), storm_period, 'HandleVisibility','off', 'FaceColor',[.4 .4 .4])
 end
 
 

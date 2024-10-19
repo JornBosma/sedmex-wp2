@@ -4,7 +4,7 @@ clear
 clc
 
 [~, fontsize, ~, ~, ~] = sedmex_init;
-% fontsize = 22; % ultra-wide screen
+% fontsize = 26; % ultra-wide screen
 
 dataPath = [filesep 'Volumes' filesep 'T7 Shield' filesep 'DataDescriptor' filesep 'hydrodynamics' filesep];
 
@@ -19,56 +19,64 @@ coastAngleS = deg2rad(90-coastAngleSdeg); % coastline angle southern beach [rad 
 
 
 %% Correct measured height of control volume above bed
-hab_measured = load('hab_C10.mat');
-hab_measured = hab_measured.hab./100; % [cm] to [m]
+load('hab_measured.mat');
 
 % Iterate over each variable in the timetable
-for varName = hab_measured.Properties.VariableNames
+for varName = hab.Properties.VariableNames(1:end)
     % Get the variable data
-    data = hab_measured.(varName{1});
+    data = hab.(varName{1})./100; % [cm] to [m]
     
     % Apply the condition: if value < 0.1, set it to 0.1 (to prevent
     % extremely high depth-average velocities)
     data(data < 0.12) = 0.12;
     
     % Update the variable in the timetable
-    hab_measured.(varName{1}) = data;
+    hab.(varName{1}) = data;
 end
 
 clearvars varName data
 
 
 %% Load ADV data
-adv_names = {'L6C1VEC', 'L5C1VEC', 'L4C1VEC', 'L3C1VEC', 'L2C10VEC', 'L1C1VEC'};
+instru = {'L6C1VEC', 'L5C1VEC', 'L4C1VEC', 'L3C1VEC', 'L2C5SONTEK1', 'L1C1VEC'};
+
 t0 = datetime('2021-09-01 00:00:00','InputFormat','yyyy-MM-dd HH:mm:ss');
 k_sc = 0.05;  % Nikuradse current-related roughness [m] (between 5 and 10 cm)
 
-for n = 1:length(adv_names)
-    % if n == 5
-    %     ADVpath = [dataPath 'ADV' filesep 'L2C5SONTEK1' filesep 'tailored_L2C5SONTEK1.nc'];
-    % else
-        ADVpath = [dataPath 'ADV' filesep adv_names{n} filesep 'tailored_' adv_names{n} '.nc'];
-    % end
+TT = cell(1, length(instru));
+for n = 1:length(instru)
+
+    if strcmp(instru{n}, 'L2C7ADCP')
+        ADVpath = [dataPath 'ADCP' filesep 'tailored_' instru{n} '.nc'];
+    else
+        ADVpath = [dataPath 'ADV' filesep instru{n} filesep 'tailored_' instru{n} '.nc'];
+    end
+
     t = ncread(ADVpath, 't'); % seconds since 2021-09-01 00:00:00
     info = ncinfo(ADVpath);
     % z = ncread(ADVpath, 'h');
     h = ncread(ADVpath, 'd');
     Uz = ncread(ADVpath, 'umag');
-    Ulong = ncread(ADVpath, 'ulm');
-    Ucros = ncread(ADVpath, 'ucm');
+    % Ulong = ncread(ADVpath, 'ulm');
+    % Ucros = ncread(ADVpath, 'ucm');
     Udir = ncread(ADVpath, 'uang');
     Hm0 = ncread(ADVpath, 'Hm0');
     Hdir = ncread(ADVpath, 'puvdir');
 
+    % Correct SONTEK wave height based on values L2C4ADV and L2C6OSSI
+    if strcmp(instru{n}, 'L2C5SONTEK1')
+        [~, Hm0] = correct_sontek(t, Hm0, 'Hm0');
+    end
+
     % Interpolate the measurements to the new time vector
     time = t0 + seconds(t);
-    habCVnew = retime(hab_measured, time, 'pchip');
-    z = habCVnew.(adv_names{n});
+    habCVnew = retime(hab, time, 'pchip');
+    z = habCVnew.(instru{n});
 
     % Estimate the depth-averaged current velocity
     [Ud, ~] = compute_DAV(abs(Uz), z, k_sc, h);
-    [Udl, ~] = compute_DAV(abs(Ulong), z, k_sc, h);
-    [Udc, ~] = compute_DAV(abs(Ucros), z, k_sc, h);
+    % [Udl, ~] = compute_DAV(abs(Ulong), z, k_sc, h);
+    % [Udc, ~] = compute_DAV(abs(Ucros), z, k_sc, h);
 
     % % Convert Cartesian direction convention into Nautical direction
     % Uang = wrapTo360(90-Uang);
@@ -84,10 +92,10 @@ for n = 1:length(adv_names)
     % Hm0(buried1 | buried2) = NaN;
     % Hdir(buried1 | buried2) = NaN;
 
-    TT{n} = timetable(time, z, Uz, Ud, Udl, Udc, Udir, Hm0, Hdir);
+    TT{n} = timetable(time, z, Uz, Ud, Udir, Hm0, Hdir);
 end
 
-clearvars t0 t info h Uz Udir Hm0 Hdir time habCVnew z Ud Udl Udc n hab_measured dataPath ADVpath Ulong Ucros
+clearvars t0 t info h Uz Udir Hm0 Hdir time habCVnew z Ud n hab_measured dataPath ADVpath Ulong Ucros
 
 
 %% Isolate the variables
@@ -127,13 +135,11 @@ t = TT{1}.time;
 z = collectedVariables{1};
 Uz = collectedVariables{2};
 Ud = collectedVariables{3};
-Udl = collectedVariables{4};
-Udc = collectedVariables{5};
-Udir = collectedVariables{6};
-Hm0 = collectedVariables{7};
-Hdir = collectedVariables{8};
+Udir = collectedVariables{4};
+Hm0 = collectedVariables{5};
+Hdir = collectedVariables{6};
 
-clearvars i commonTime variableNames numVars numTimes collectedVariables varData v
+clearvars i commonTime variableNames numVars numTimes collectedVariables varData v TT
 
 
 %% Reduce dataset to noNaN-only
@@ -146,17 +152,15 @@ t_clean = t(~rowsWithNaNs, :);
 z_clean = z(~rowsWithNaNs, :);
 Uz_clean = Uz(~rowsWithNaNs, :);
 Ud_clean = Ud(~rowsWithNaNs, :);
-Udl_clean = Udl(~rowsWithNaNs, :);
-Udc_clean = Udc(~rowsWithNaNs, :);
 Udir_clean = Udir(~rowsWithNaNs, :);
 Hm0_clean = Hm0(~rowsWithNaNs, :);
 Hdir_clean = Hdir(~rowsWithNaNs, :);
 
 % Create timetable
-T_clean = table(t_clean, z_clean, Uz_clean, Ud_clean, Udl_clean, Udc_clean, Udir_clean, Hm0_clean, Hdir_clean);
+T_clean = table(t_clean, z_clean, Uz_clean, Ud_clean, Udir_clean, Hm0_clean, Hdir_clean);
 TT_clean = table2timetable(T_clean);
 
-clearvars rowsWithNaNs T t_clean z_clean Uz_clean Ud_clean Udir_clean Hm0_clean Hdir_clean t z Uz Ud Udc Udl Udir Hm0 Hdir Udc_clean Udl_clean
+clearvars rowsWithNaNs T t_clean z_clean Uz_clean Ud_clean Udir_clean Hm0_clean Hdir_clean t z Uz Ud Udir Hm0 Hdir T_clean
 
 
 %% Check timeseries
@@ -166,7 +170,7 @@ clearvars rowsWithNaNs T t_clean z_clean Uz_clean Ud_clean Udir_clean Hm0_clean 
 % nexttile
 % scatter(TT.time(1000:end,:), TT.Ud(1000:end,:), 200)
 % ylabel('U (m/s)')
-% legend(adv_names, "Location","northeastoutside")
+% legend(instru, "Location","northeastoutside")
 % 
 % nexttile
 % scatter(TT.time(1000:end,:), TT.Hm0(1000:end,:), 200)
@@ -222,53 +226,3 @@ for i = 1:size(TT_clean.Hm0_clean, 2)
 end
 
 clearvars i
-
-
-%% Additional calculations (not correct!)
-
-% Wrap wave directions to [0, 360) and convert to arrival direction
-waveDir = wrapTo360(-(TT_clean.Hdir_clean-90-180));
-mean(waveDir, 'omitmissing')
-mean(waveDir, 'all', 'omitmissing')
-
-% Calculate shore normals
-shoreNormalS = coastAngleSdeg + 90;
-shoreNormalN = coastAngleNdeg + 90;
-
-% Initialize waveDir_shoreNormal with NaN values
-waveDir_shoreNormal = nan(size(waveDir));
-
-% Calculate angle differences
-waveDir_shoreNormal(:, [1, 2]) = wrapTo360(abs(shoreNormalS - waveDir(:, [1, 2])));
-waveDir_shoreNormal(:, 3:end) = wrapTo360(abs(shoreNormalN - waveDir(:, 3:end)));
-
-% Find the smallest angle by ensuring it lies within [0, 180] degrees
-waveDir_shoreNormal = min(waveDir_shoreNormal, 360 - waveDir_shoreNormal);
-
-% Calculate the mean wave angle wrt shore normal
-mean(waveDir_shoreNormal, 'omitmissing')
-
-%%
-
-% Cross-shore v. longshore current
-ratio_crossLong = mean(TT_clean.Udc_clean, 'omitmissing') ./ mean(TT_clean.Udl_clean, 'omitmissing') .* 100
-ratio_crossLong_mean = mean(ratio_crossLong)
-
-% Mean wave height
-meanHm0 = mean(TT_clean.Hm0_clean, 'omitmissing')
-meanHm0S = mean(meanHm0(1:2))
-meanHm0N = mean(meanHm0(3:end))
-ratio_Hm0_SN = meanHm0S/meanHm0N*100
-100 - ratio_Hm0_SN
-
-% Mean storm wave height
-startDate = datetime(2021, 9, 27);
-endDate = datetime(2021, 10, 6);
-stormTT = TT_clean(TT_clean.t_clean >= startDate & TT_clean.t_clean <= endDate, :);
-stormHm0 = stormTT.Hm0_clean;
-
-meanHm0 = mean(stormHm0, 'omitmissing');
-meanHm0S = mean(meanHm0(1:2))
-meanHm0N = mean(meanHm0(3:end))
-ratio_Hm0_SN = meanHm0S/meanHm0N*100
-100 - ratio_Hm0_SN

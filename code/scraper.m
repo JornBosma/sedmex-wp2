@@ -53,7 +53,9 @@ runnel15 = GS_20211015{41:48, "Mean_mu"}/1000;
 runnel15 = [runnel15; NaN; NaN; NaN];  % groundwater hit
 
 % Calculate mean stats
-Mg = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
+Mg_mean = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
+    MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
+Mg_std = std([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
     MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
 
 
@@ -97,12 +99,12 @@ title('B3')
 
 ax(7) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [bar15, bar15])
-title('bar')
+title('Bar')
 
 ax(8) = nexttile;
 pcolor([1, 2], [depth_mm, depth_mm], [runnel15, runnel15])
 % title('runnel')
-title('runl')
+title('Run')
 ax(8).Color = cbf.skyblue;
 yticks({})
 
@@ -120,6 +122,35 @@ set(ax, 'Colormap', brewermap([],"YlOrRd"), 'CLim',[0.4 1.6])
 % for i = 1:length(ax)
 %     shading(ax(i), 'interp')
 % end
+
+
+%% Additional calculations
+depth = -depth_mm(2:end);
+stat = HW07(1:end-1);
+
+% Visualise
+% figure
+% plot(depth, stat)
+% xlabel('depth (mm)')
+% ylabel('M_{G} (mm)')
+
+% Calculate mean
+mean_stat = mean(stat);
+
+% Calculate standard deviation (variation)
+std_stat = std(stat);
+
+% Calculate variance
+variance_stat = var(stat);
+
+% Calculate interquartile range (IQR)
+iqr_stat = iqr(stat);
+
+% Display results
+fprintf('Mean of stat: %.3f mm\n', mean_stat);
+fprintf('Standard deviation of stat: %.3f mm\n', std_stat);
+fprintf('Variance of stat: %.3f mm^2\n', variance_stat);
+fprintf('Interquartile range (IQR) of stat: %.3f mm\n', iqr_stat);
 
 
 %% Modify data arrays (Sorting)
@@ -151,7 +182,9 @@ runnel15 = GS_20211015{41:48, "Sorting"};
 runnel15 = [runnel15; NaN; NaN; NaN];  % groundwater hit
 
 % Calculate mean stats
-Sg = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
+Sg_mean = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
+    MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
+Sg_std = std([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
     MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
 
 
@@ -196,7 +229,7 @@ yticks({})
 
 c = colorbar;
 % c.Position = [0.9 0.11 0.013 0.8];
-c.Label.String = '\sigma_{G}';
+c.Label.String = 'σ_{G}';
 c.FontSize = fontsize*.8;
 
 set(ax(2:8), 'yTickLabel', [])
@@ -213,20 +246,20 @@ set(ax, 'Colormap', brewermap([],"BuPu"), 'CLim',[1.5 3])
 annotation('textbox', [0.02, 0.88, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
 annotation('textbox', [0.02, 0.43, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
 
-annotation('textbox', [0.2, 0.65, 0.1, 0.1], 'String',mat2str(Mg(1),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.29, 0.65, 0.1, 0.1], 'String',mat2str(Mg(2),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.372, 0.65, 0.1, 0.1], 'String',mat2str(Mg(3),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.462, 0.65, 0.1, 0.1], 'String',mat2str(Mg(4),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.55, 0.65, 0.1, 0.1], 'String',mat2str(Mg(5),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.64, 0.65, 0.1, 0.1], 'String',mat2str(Mg(6),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.73, 0.65, 0.1, 0.1], 'String',mat2str(Mg(7),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.82, 0.65, 0.1, 0.1], 'String',mat2str(Mg(8),2), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.2, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(1)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.29, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(2)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.372, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(3)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.462, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(4)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.55, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(5)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.64, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(6)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.73, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(7)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.82, 0.65, 0.1, 0.1], 'String', sprintf('%.2f', Mg_mean(8)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
 
-annotation('textbox', [0.2, 0.21, 0.1, 0.1], 'String',mat2str(Sg(1),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.29, 0.21, 0.1, 0.1], 'String',mat2str(Sg(2),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.372, 0.21, 0.1, 0.1], 'String',mat2str(Sg(3),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.462, 0.21, 0.1, 0.1], 'String',mat2str(Sg(4),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.55, 0.21, 0.1, 0.1], 'String',mat2str(Sg(5),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.64, 0.21, 0.1, 0.1], 'String',mat2str(Sg(6),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.73, 0.21, 0.1, 0.1], 'String',mat2str(Sg(7),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
-annotation('textbox', [0.82, 0.21, 0.1, 0.1], 'String',mat2str(Sg(8),3), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.2, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(1)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.29, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(2)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.372, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(3)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.462, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(4)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.55, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(5)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.64, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(6)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.73, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(7)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');
+% annotation('textbox', [0.82, 0.21, 0.1, 0.1], 'String', sprintf('%.2f', Sg_mean(8)), 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal', 'Rotation',90, 'Color','w');

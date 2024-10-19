@@ -151,7 +151,7 @@ h2.MissingDataLabel = 'no data';
 
 nexttile(6,[2 1])
 % text(0, .5, '2021-10-08/09', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
-text(.4, .4, '\sigma_{G}', 'FontSize',fontsize*.8, 'FontWeight','bold', 'EdgeColor','none', 'Margin',6)
+text(.4, .4, 'σ_{G}', 'FontSize',fontsize*.8, 'FontWeight','bold', 'EdgeColor','none', 'Margin',6)
 axis off
 
 heatdata = rot90(h2.ColorData, 2);
@@ -468,7 +468,7 @@ h7.MissingDataLabel = 'no data';
 
 nexttile(6,[2 1])
 % text(0, .5, '2022-10-26', 'FontSize',fontsize, 'FontWeight','bold', 'EdgeColor','k', 'Margin',6)
-text(.3, .4, '\Delta\sigma_{G}', 'FontSize',fontsize*.8, 'FontWeight','bold', 'EdgeColor','none', 'Margin',6)
+text(.3, .4, '\Deltaσ_{G}', 'FontSize',fontsize*.8, 'FontWeight','bold', 'EdgeColor','none', 'Margin',6)
 axis off
 
 heatdata = rot90(h7.ColorData, 2);

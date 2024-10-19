@@ -26,7 +26,7 @@ Options.vWinds         = linspace(0, .8, 5);
 
 Options.TextFontname   = 'Arial';
 Options.TitleString    = [];
-Options.LabLegend      = 'U_d (m s^{-1})';
+Options.LabLegend      = 'U (m s^{-1})';
 Options.LegendVariable = 'u';
 Options.FigColor       = 'w';
 Options.CMap           = mycolormap;

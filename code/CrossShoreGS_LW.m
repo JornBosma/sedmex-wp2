@@ -146,8 +146,8 @@ for n = 1:length(surveyDates)
     p(n) = plot(d, Z(:,n), 'LineWidth',3);
 end
 scatter(d(idxScrp), zScrp, 200, 'vk', 'LineWidth',3)
-text(d(idxScrp([1, 4, 5]))-.4, zScrp([1, 4, 5])-.22, scrapeIDs([1, 4, 5]), 'FontSize',fontsize*.8)
-text(d(idxScrp([2, 3, 6]))-.4, zScrp([2, 3, 6])+.22, scrapeIDs([2, 3, 6]), 'FontSize',fontsize*.8)
+text(d(idxScrp([1, 4, 5, 6]))-.4, zScrp([1, 4, 5, 6])-.22, scrapeIDs([1, 4, 5, 6]), 'FontSize',fontsize*.8)
+text(d(idxScrp([2, 3]))-.4, zScrp([2, 3])+.22, scrapeIDs([2, 3]), 'FontSize',fontsize*.8)
 hold off
 
 p(2).LineStyle = ":";
@@ -174,8 +174,13 @@ ylim([-1.7, 1.7])
 xlabel('cross-shore distance (m)')
 ylabel('bed level (NAP+m)')
 legend(string(surveyDates, 'dd MMM'), 'Location','eastoutside')
-stop
+
 clearvars n newcolors p d
+
+
+%% Calculate mean elevation difference S1 and S8
+zDiff = Z(idxSedi(1), [2,3,5,8,9]) - Z(idxSedi(end), [2,3,5,8,9]);
+mean(zDiff)
 
 
 %% Cross-shore sediment stats
@@ -245,7 +250,7 @@ for i = 1:length(GS_tables)
     GS_tables{i}.Sample_Identity = newNames;
 end
 
-clearvars folderPath dataPath opts GS_20210920 GS_20210928 GS_20211001 GS_20211007 GS_20211015 i names newNames
+clearvars dataPath opts GS_20210920 GS_20210928 GS_20211001 GS_20211007 GS_20211015 i names newNames
 
 
 %% Isolate the LW-samples
@@ -308,6 +313,18 @@ sortingTable.Properties.RowNames = rowNames;
 skewnessTable.Properties.RowNames = rowNames;
 kurtosisTable.Properties.RowNames = rowNames;
 
+% Compute cross-shore variability
+meanTableXvar = [mean(meanTable, 2), std(meanTable, [], 2)];
+sortingTableXvar = [mean(sortingTable, 2), std(sortingTable, [], 2)];
+
+% Compute temporal variability
+meanTableTvar = [mean(meanTable, 1); std(meanTable, [], 1)];
+sortingTableTvar = [mean(sortingTable, 1); std(sortingTable, [], 1)];
+
+% Relative standard deviations
+mean(meanTableXvar.std) / mean(meanTableXvar.mean) * 100
+mean(sortingTableXvar.std) / mean(sortingTableXvar.mean) * 100
+
 clearvars numTables numRows meanMatrix sortingMatrix skewnessMatrix kurtosisMatrix i mean_values sorting_values
 
 
@@ -343,7 +360,7 @@ for i = 1:length(GS_tables_LW)
     ax_right(i) = gca;
     ax_right(i).YColor = 'red';
     if i == 4
-        ylabel('\sigma_{G}')
+        ylabel('σ_{G}')
     end
 end
 
@@ -358,20 +375,71 @@ grid(axs, 'on')
 clearvars i
 
 
-%% Visualisation: time evolution plots
-f3 = figure(Position=[390, 957, 831, 888]);
-tiledlayout(4, 2, 'TileSpacing','none')
+%% Water level data
+instrument = 'L2C6OSSI';
+filename = fullfile(folderPath, 'hydrodynamics', 'pressuresensors',...
+    instrument, ['tailored_', instrument, '.nc']);
 
+% instrument = 'L2C7ADCP';
+% filename = fullfile(folderPath, 'hydrodynamics', 'ADCP',...
+%     ['tailored_', instrument, '.nc']);
+
+% instrument = 'L2C10VEC';
+% filename = fullfile(folderPath, 'hydrodynamics', 'ADV',...
+%     instrument, ['tailored_', instrument, '.nc']);
+
+info = ncinfo(filename);
+
+% Defined starting time
+t0 = datetime('2021-09-01 00:00:00','InputFormat','yyyy-MM-dd HH:mm:ss');
+t = ncread(filename, 't');      % seconds since 2021-09-01
+Time = t0 + seconds(t);
+eta = ncread(filename, 'zs');   % water level [NAP+m]
+Hm0 = ncread(filename, 'Hm0');  % wave height [m]
+L2C6 = timetable(Time, eta, Hm0);
+
+% % Retiming the water levels timetable to match the sampling times
+% alignedWaterLevels = retime(L2C6, allSamplingTimes, 'linear');
+% 
+% % Display the aligned water levels at the sampling times
+% disp(alignedWaterLevels);
+
+clearvars allSamplingTimes info t t0 Time filename eta Hm0
+
+
+%% Visualisation: time evolution plots
+f3 = figure(Position=[740, 1405, 831, 888]);
+tiledlayout(5, 2, 'TileSpacing','compact')
+
+axs(1) = nexttile;
+plot(L2C6.Time, L2C6.eta, 'LineWidth',3)
+ylabel('\eta (NAP+m)')
+ylim([-1.2, 1.2])
+
+axs(2) = nexttile;
+yyaxis left
+ax_left(2) = gca;
+ax_left(2).YColor = 'k';
+yticklabels({})
+yyaxis right
+plot(L2C6.Time, L2C6.Hm0, 'LineWidth',3, 'Color',cbf.blue)
+ax_right(2) = gca;
+ax_right(2).YColor = 'k';
+ylabel('H_{m0} (m)')
+ylim([0, .6])
+yticks(0:.2:.6)
+
+j = 3;
 hold on
 for i = 1:length(sampleIDs)
-    axs(i) = nexttile;
+    axs(j) = nexttile;
 
     yyaxis left
     plot(samplingDates, meanTable{:,i}, '-ok', 'LineWidth',3, 'MarkerSize',8)
     yline(mean(meanTable{:,i}), '--k', 'LineWidth',1)
     ylim([0 3])
-    ax_left(i) = gca;
-    ax_left(i).YColor = 'black';
+    ax_left(j) = gca;
+    ax_left(j).YColor = 'black';
     if i == 3
         ylabel('M_{G} (mm)')
     end
@@ -385,19 +453,20 @@ for i = 1:length(sampleIDs)
     ylim([1 4])
     ax_right(i) = gca;
     ax_right(i).YColor = 'red';
-    if i == 6
-        ylabel('\sigma_{G}')
+    if i == 4
+        ylabel('σ_{G}')
     end
     if i == 1 || i == 3 || i == 5 || i == 7
         yticklabels('')
     end
 
-    text(samplingDates(end)-days(3.5), 3.5, sampleIDs(i), 'FontSize',fontsize)
+    text(samplingDates(end)-days(3.5), 3.5, sampleIDs(i), 'FontSize',fontsize*.8)
+    j = j+1;
 end
 hold off
 
 xticks(axs, samplingDates(1):days(7):samplingDates(end))
-xticklabels(axs(1:6), '')
+xticklabels(axs(1:end-2), '')
 
 xlim(axs, [samplingDates(1)-days(1), samplingDates(end)+days(1)])
 grid(axs, 'on')
@@ -459,7 +528,7 @@ plot(x_fit, y_fit, '-r', 'LineWidth', 3)
 
 % Add labels and title
 xlabel('\Deltaz (m)')
-ylabel('\Delta\sigma_{G}')
+ylabel('\Deltaσ_{G}')
 title('Linear Fit of Data')
 legend('Data points', '', 'Fitted line')
 
@@ -493,7 +562,7 @@ text(.23, -.2, {equationText, rsquaredText}, 'VerticalAlignment','top',...
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
 % xlabel('\Deltaz (m)')
-ylabel('\Delta\sigma_{G}')
+ylabel('\Deltaσ_{G}')
 legend(sampleIDs, 'Location','eastoutside')
 
 nexttile
@@ -515,30 +584,77 @@ colororder(newcolors)
 
 
 %% Visualisation: MG and SG trends wrt bed-level change
+markerTypes = {'o', '^', 's', 'v'};
+% colors = lines(size(zDiff, 2)); % Using MATLAB's 'lines' colormap for distinct colors
+% colors = brewermap(length(meanDiff), 'Greys');
+colors = brewermap(length(meanDiff), 'Spectral');
+
 f5 = figure(Position=[740, 1880, 1719, 413]);
-tiledlayout(1,2, 'TileSpacing','compact')
+tl = tiledlayout(1,2, 'TileSpacing','compact');
 
 nexttile
-scatter(zDiff, meanDiff, 200, 'filled', 'MarkerEdgeColor','k')
+% scatter(zDiff, meanDiff, 200, 'filled', 'MarkerEdgeColor','k')
+
+hold on
+for i = 1:size(zDiff, 1)
+    for j = 1:size(zDiff, 2)
+        scatter(zDiff(i, j), meanDiff(i, j), 200, 'filled', ...
+                'MarkerEdgeColor', 'k', ...
+                'MarkerFaceColor', colors(j, :), ...
+                'Marker', markerTypes{i});
+    end
+end
+hold off
+
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
-xlabel('\Deltaz (m)')
+% xlabel('\Deltaz (m)')
 ylabel('\DeltaM_{G} (mm)')
 
+% % Create legend
+% [h1, icons, ~, ~] = legend(sampleIDs, 'Location','northoutside', 'Orientation','horizontal');
+% for k = 9:16
+%     icons(k).Children.MarkerSize = 15;
+% end
+
+h1 = legend(sampleIDs, 'Position',[0.8527, 0.2153, 0.1364, 0.3087], 'Orientation','horizontal', 'NumColumns',3);
+
 nexttile
-scatter(zDiff, sortingDiff, 200, 'filled', 'MarkerEdgeColor','k'); hold on
+% scatter(zDiff, sortingDiff, 200, 'filled', 'MarkerEdgeColor','k'); hold on
+
+hold on
+for i = 1:size(zDiff, 1)
+    for j = 1:size(zDiff, 2)
+        scatter(zDiff(i, j), sortingDiff(i, j), 200, 'filled', ...
+                'MarkerEdgeColor', 'k', ...
+                'MarkerFaceColor', colors(j, :), ...
+                'Marker', markerTypes{i});
+    end
+end
+hold off
+
 % plot(zDiff(2, 7), sortingDiff(2, 7), 'rx', 'MarkerSize',20, 'LineWidth',2)
 % plot(x_fit, y_fit, '-r', 'LineWidth', 3); hold off
 % text(.23, -.2, {equationText, rsquaredText}, 'VerticalAlignment','top',...
 %     'HorizontalAlignment','right', 'FontSize',fontsize*.6, 'Color','r');
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
-xlabel('\Deltaz (m)')
-ylabel('\Delta\sigma_{G}')
-legend(sampleIDs, 'Location','eastoutside')
+% xlabel('\Deltaz (m)')
+ylabel('\Deltaσ_{G}')
+xlabel(tl, '\Deltaz (m)', 'FontSize',fontsize)
 
-newcolors = brewermap(length(meanDiff), 'Greys');
-colororder(newcolors)
+% Create legend
+ledg = [{'20/09 - 28/09'}, repmat({''},1,7), {'28/09 - 01/10'}, repmat({''},1,7), {'01/10 - 07/10'}, repmat({''},1,7), {'07/10 - 15/10'}];
+[h2, icon, ~, ~] = legend(ledg, 'Location','northeastoutside', 'Orientation','vertical');
+for k = 5:8
+    icon(k).Children.MarkerSize = 13;
+    icon(k).Children.LineWidth = 2;
+    icon(k).Children.MarkerFaceColor = 'none';
+end
 
-annotation('textbox', [0.424, 0.815, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
-annotation('textbox', [0.9, 0.815, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+% newcolors = brewermap(length(meanDiff), 'Greys');
+% colororder(newcolors)
+
+annotation('textbox', [0.365, 0.815, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.795, 0.815, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+

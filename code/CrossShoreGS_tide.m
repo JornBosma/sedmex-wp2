@@ -217,7 +217,7 @@ for n = [2, 3, 5, 8, 9]
     hold off
     
     colororder(surveyColours(n, :))
-        
+    
     % Filter water levels for the current survey date
     currentDate = dateshift(surveyDates(n), 'start', 'day');
     nextDate = currentDate + days(1);
@@ -432,7 +432,7 @@ for i = 1:length(GS_tables)
     end
 
     if i == 3
-        ylabel('\sigma_{G}')
+        ylabel('σ_{G}')
     end
     if i == 2 || i == 4
         yticklabels('')
@@ -465,6 +465,8 @@ f2 = gobjects(size(GS_tables));
 tidalVariation_M = nan(length(GS_tables), length(xpos));
 tidalVariation_S = nan(length(GS_tables), length(xpos));
 
+dryThreshold = 0.2;
+
 for i = 1:length(GS_tables)
     f2(i) = figure(Position=[740, 1405, 831, 888]);
     tiledlayout(5,2, 'TileSpacing','compact')
@@ -481,7 +483,7 @@ for i = 1:length(GS_tables)
 
     axs(1) = nexttile;
     plot(dailyData.Time, dailyData.eta, 'LineWidth',3)
-    ylabel('\eta (NAP+m)')
+    ylabel('η (NAP+m)')
     ylim([-1.2, 1])
 
     axs(2) = nexttile;
@@ -496,11 +498,11 @@ for i = 1:length(GS_tables)
     ylabel('H_{m0} (m)')
     ylim([0, .5])
     
-    if i == 3
-        text(sampleTimes(1)+hours(5.8), .08, instrument, 'FontSize',fontsize*.8)
-    else
-        text(sampleTimes(1)+hours(5.8), .42, instrument, 'FontSize',fontsize*.8)
-    end
+    % if i == 3
+    %     text(sampleTimes(1)+hours(5.8), .08, instrument, 'FontSize',fontsize*.8)
+    % else
+    %     text(sampleTimes(1)+hours(5.8), .42, instrument, 'FontSize',fontsize*.8)
+    % end
 
     hold on
     for j = 1:length(xLocs)
@@ -512,7 +514,7 @@ for i = 1:length(GS_tables)
         for k = 2:length(waterLevels)
             % Indicate sample locations which have not been submerged since
             % the previous sampling moment
-            dry = sampleZ(j, i) > waterLevels(k)+0.1 & sampleHeight > waterLevels(k-1)+0.1;
+            dry = sampleZ(j, i) > waterLevels(k)+dryThreshold & sampleHeight > waterLevels(k-1)+dryThreshold;
             % Bed level has stayed above water level, plot with thick red edge
             if dry
                 scatter(sampleTimes(k), data.Mean_mm(k), 300, 'filled', ...
@@ -538,7 +540,7 @@ for i = 1:length(GS_tables)
         for k = 2:length(waterLevels)
             % Indicate sample locations which have not been submerged since
             % the previous sampling moment
-            dry = sampleZ(j, i) > waterLevels(k)+0.1 & sampleHeight > waterLevels(k-1)+0.1;
+            dry = sampleZ(j, i) > waterLevels(k)+dryThreshold & sampleHeight > waterLevels(k-1)+dryThreshold;
             % Bed level has stayed above water level, plot with thick red edge
             if dry
                 scatter(sampleTimes(k), data.Sorting(k), 300, 'filled', ...
@@ -554,7 +556,7 @@ for i = 1:length(GS_tables)
         ax_right(j) = gca;
         ax_right(j).YColor = 'red';
         if j == 6
-            ylabel('\sigma_{G}')
+            ylabel('σ_{G}')
         end
         if j == 1 || j == 3 || j == 5 || j == 7
             yticklabels('')
@@ -606,7 +608,7 @@ plot(xpos, mean(tideVar_M, 'omitmissing'), 'r', 'LineWidth',4)
 plot(xpos, median(tideVar_M, 'omitmissing'), ':r', 'LineWidth',4)
 hold off
 
-ylabel('\sigma_{tide} (M_G)')
+ylabel('σ_{tide} (M_G)')
 
 xlim([xpos(1)-1, xpos(end)+1])
 xticks(xpos)
@@ -622,7 +624,7 @@ plot(xpos, mean(tideVar_S, 'omitmissing'), 'r', 'LineWidth',4)
 plot(xpos, median(tideVar_S, 'omitmissing'), ':r', 'LineWidth',4)
 hold off
 
-ylabel('\sigma_{tide} (\sigma_{G})')
+ylabel('σ_{tide} (σ_{G})')
 
 xlim([xpos(1)-1, xpos(end)+1])
 xticks(xpos)
@@ -632,4 +634,34 @@ grid on
 annotation('textbox', [0.78, 0.815, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
 annotation('textbox', [0.78, 0.375, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
 
-clearvars tideVar_M tideVar_S n
+% clearvars tideVar_M tideVar_S n
+
+
+%% Horizontal sampling error
+
+% Emerged samples: 20 cm above water level
+M_S1_20Sep = [0.945037; 1.22433];
+S_S1_20Sep = [2.67655; 3.3442];
+
+M_S1_28Sep = [0.759304; 0.999734];
+S_S1_28Sep = [2.40133; 2.60146];
+
+M_S1_07Oct = [0.89689; 1.48307];
+S_S1_07Oct = [2.40958; 3.23303];
+
+M_S2_07Oct = [0.646713; 0.731363];
+S_S2_07Oct = [2.06916; 2.43918];
+
+% Calculate mean stats
+Mg_mean = mean([M_S1_20Sep, M_S1_28Sep, M_S1_07Oct, M_S2_07Oct]);
+Mg_std = std([M_S1_20Sep, M_S1_28Sep, M_S1_07Oct, M_S2_07Oct]);
+
+Sg_mean = mean([S_S1_20Sep, S_S1_28Sep, S_S1_07Oct, S_S2_07Oct]);
+Sg_std = std([S_S1_20Sep, S_S1_28Sep, S_S1_07Oct, S_S2_07Oct]);
+
+% Display bulk stats
+mean(Mg_std)
+mean(Mg_std([1,2,4]))
+
+mean(Sg_std)
+mean(Sg_std([1,2,4]))

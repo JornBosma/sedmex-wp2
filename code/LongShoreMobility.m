@@ -519,7 +519,7 @@ grid on
 axis square
 
 clearvars a b c threshold
-
+stop
 
 %% Calculations: relative importance current and waves (3/3)
 % threshold = GS_stats.theta_cr50_McCarron;

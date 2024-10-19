@@ -294,7 +294,7 @@ for i = 1:length(GS_tables)
     ax_right(i) = gca;
     ax_right(i).YColor = 'red';
     if i == 4
-        ylabel('\sigma_{G}')
+        ylabel('σ_{G}')
     end
 end
 
@@ -339,7 +339,7 @@ for i = 1:length(sampleIDs)
     ax_right(i) = gca;
     ax_right(i).YColor = 'red';
     if i == 6
-        ylabel('\sigma_{G}')
+        ylabel('σ_{G}')
     end
     if i == 1 || i == 3 || i == 5 || i == 7
         yticklabels('')
@@ -410,7 +410,7 @@ plot(x_fit, y_fit, '-r', 'LineWidth', 3)
 
 % Add labels and title
 xlabel('\Deltaz (m)')
-ylabel('\Delta\sigma_{G}')
+ylabel('\Deltaσ_{G}')
 title('Linear Fit of Data')
 legend('Data points', '', 'Fitted line')
 
@@ -444,7 +444,7 @@ text(.29, .35, {equationText, rsquaredText}, 'VerticalAlignment','top',...
 xline(0, '--', 'LineWidth',2)
 yline(0, '--', 'LineWidth',2)
 % xlabel('\Deltaz (m)')
-ylabel('\Delta\sigma_{G}')
+ylabel('\Deltaσ_{G}')
 legend(sampleIDs, 'Location','eastoutside')
 
 nexttile

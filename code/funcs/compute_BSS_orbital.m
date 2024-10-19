@@ -1,4 +1,4 @@
-function [tau_c, tau_w, tau_cw] = compute_BSS_orbital(u_c, h, Urms, Trms, rho_w, phi_c, phi_w, D90, g)
+function [tau_c, tau_w, tau_cw] = compute_BSS_orbital(u_c, h, Urms, Trms, rho_w, phi_c, phi_w, D50, g)
     % Based on Kleinhans and Grasmeijer (2006), assuming hydraulic rough
     % conditions (Re* >= 11.63)
 
@@ -10,7 +10,7 @@ function [tau_c, tau_w, tau_cw] = compute_BSS_orbital(u_c, h, Urms, Trms, rho_w,
     %     rho_w     water density [kg/m^3]
     %     phi_c     current direction [°N]
     %     phi_w     wave propagation direction [°N]
-    %     D90       roughness diameter [m]
+    %     D50       median grain diameter [m]
     %     g         gravitational acceleration [m/s^2]
     
     % OUTPUT
@@ -18,7 +18,8 @@ function [tau_c, tau_w, tau_cw] = compute_BSS_orbital(u_c, h, Urms, Trms, rho_w,
     %     tau_w     wave-induced bed-shear stress [Pa]
     %     tau_cw    total bed-shear stress [Pa]
     
-    k_s = D90;                               % Nikuradse roughness (grain-related)
+    % k_s = D90;                               % Nikuradse roughness (grain-related)
+    k_s = 2.5 * D50;                         % Nikuradse roughness (grain-related)
     C = 18 * log10(12 * h / k_s);            % Chézy coefficient
     tau_c = rho_w * g * u_c.^2 ./ C.^2;      % current-induced bed-shear stress
     

@@ -213,7 +213,7 @@ h2.MissingDataColor = 'w';
 h2.MissingDataLabel = 'no data';
 
 hs2 = struct(h2);
-ylabel(hs2.Colorbar, '\sigma_G');
+ylabel(hs2.Colorbar, 'σ_G');
 
 
 %% Compute temporal means
@@ -304,7 +304,7 @@ h4.MissingDataColor = 'w';
 h4.MissingDataLabel = 'no data';
 
 hs4 = struct(h4);
-ylabel(hs4.Colorbar, '\sigma_G');
+ylabel(hs4.Colorbar, 'σ_G');
 
 
 %% Visualisation: longshore mean
@@ -386,7 +386,7 @@ h5d.MissingDataColor = 'w';
 h5d.MissingDataLabel = 'no data';
 
 hs5d = struct(h5d);
-ylabel(hs5d.Colorbar, '\sigma_G');
+ylabel(hs5d.Colorbar, 'σ_G');
 
 
 %% Visualisation: Grain-size variability
@@ -482,7 +482,7 @@ errorbar(meanT, linspace(1.5, 6.5, 7), stdT, 'horizontal', '-ok', 'LineWidth',3)
 xline(mean(meanT, 'omitmissing'), '--k', 'LineWidth',2)
 ylim([1 7])
 % xlim([1 3])
-xlabel('                     \sigma_G', 'FontSize',fontsize)
+xlabel('                     σ_G', 'FontSize',fontsize)
 yticks([])
 
 
@@ -504,7 +504,7 @@ h6d.MissingDataColor = 'w';
 h6d.MissingDataLabel = 'no data';
 
 hs6d = struct(h6d);
-ylabel(hs6d.Colorbar, '\sigma_G');
+ylabel(hs6d.Colorbar, 'σ_G');
 
 nexttile(13, [1 1])
 heatdata = flipud(h6d.ColorDisplayData);
@@ -535,7 +535,7 @@ scatter(M08, S08, 100, 'filled')
 hold off
 
 xlabel('M_G (mm)')
-ylabel('\sigma_G')
+ylabel('σ_G')
 legend('NAP +0', 'NAP –0.8 m')
 
 

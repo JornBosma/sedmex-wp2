@@ -3,6 +3,7 @@
 
 locResults = [basePath 'results' filesep];
 locOverleaf = '/Users/jorn/Library/CloudStorage/Dropbox/Apps/Overleaf/SEDMEX_WP2/figures/';
+locGC7 = '/Users/jorn/Library/CloudStorage/OneDrive-UniversiteitUtrecht/Events/UCM/Summer_2024/figs/';
 
 %% studySite
 % exportgraphics(f1, [locResults 'studySite.png'], 'Resolution',300)
@@ -27,7 +28,8 @@ locOverleaf = '/Users/jorn/Library/CloudStorage/Dropbox/Apps/Overleaf/SEDMEX_WP2
 % exportgraphics(f4, [locResults 'CS_dGSdZ.png'], 'Resolution',300)
 
 %% CrossShoreGS_LW
-exportgraphics(f1, [locResults 'CS_LW_GS_prof.png'], 'Resolution',300)
+% exportgraphics(f1, [locResults 'CS_profile.png'], 'Resolution',300)
+% exportgraphics(f2, [locResults 'CS_LW_GS_prof.png'], 'Resolution',300)
 % exportgraphics(f3, [locResults 'CS_LW_GS_time.png'], 'Resolution',300)
 % exportgraphics(f5, [locOverleaf 'CS_LW_dMSdz.png'], 'Resolution',300)
 
@@ -65,11 +67,21 @@ exportgraphics(f1, [locResults 'CS_LW_GS_prof.png'], 'Resolution',300)
 % for i = 6%[1, 3, 5, 6] % L6, L4, L2, L0
 %     exportgraphics(f2(i), [locResults 'LS_GSD_' mat2str(i) '.png'], 'Resolution',300)
 % end
+% for i = 1%:7
+%     exportgraphics(f2(i), [locGC7 'LS_GSD_' mat2str(i) 'b.png'], 'Resolution',300)
+% end
 
-%% LongShoreMobility
+%% ShieldsDiagram
 % exportgraphics(f1, [locResults 'BSS_components.png'], 'Resolution',300)
-% exportgraphics(f2b, [locResults 'Shields_WvC.png'], 'Resolution',300)
-% exportgraphics(f6d, [locOverleaf 'PDFs_MG.png'], 'Resolution',300)
+% exportgraphics(f2b, [locOverleaf 'Shields_WvC_90.png'], 'Resolution',300)
+
+%% bedloadTransport
+% exportgraphics(f6d, [locResults 'PDFs_Fine.png'], 'Resolution',300)
+% exportgraphics(f6e, [locResults 'PDFs_Coarse.png'], 'Resolution',300)
+% exportgraphics(f6f, [locOverleaf 'PDFs_FC.png'], 'Resolution',300)
+
+% exportgraphics(f7a, [locResults 'Qb_bar_rate.png'], 'Resolution',300)
+% exportgraphics(f7b, [locResults 'Qb_bar.png'], 'Resolution',300)
 
 % exportgraphics(f3a, [locResults 'TS_tau.png'], 'Resolution',300)
 % exportgraphics(f4a, [locResults 'TS_Einstein.png'], 'Resolution',300)
@@ -80,7 +92,7 @@ exportgraphics(f1, [locResults 'CS_LW_GS_prof.png'], 'Resolution',300)
 % exportgraphics(f6c, [locResults 'PDFs_90.png'], 'Resolution',300)
 
 %% scraper
-% exportgraphics(f, [locOverleaf 'scraper.png'], 'Resolution',300)
+% exportgraphics(f, [locResults 'scraper.png'], 'Resolution',300)
 
 % exportgraphics(f1, [locResults 'scraper_mean.png'], 'Resolution',300)
 % exportgraphics(f2, [locResults 'scraper_sort.png'], 'Resolution',300)

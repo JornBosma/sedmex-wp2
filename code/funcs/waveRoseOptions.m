@@ -16,8 +16,8 @@ else
     Options.LegendType     = 0;
 end
 Options.LegendPosition = 'westoutside';
-% Options.FreqLabelAngle = 140;
-Options.FreqLabelAngle = 'none';
+Options.FreqLabelAngle = 120;
+% Options.FreqLabelAngle = 'none';
 Options.MaxFrequency   = 48;
 Options.nFreq          = 3;
 Options.nDirections    = 24;
@@ -34,6 +34,7 @@ Options.CMap           = mycolormap;
 Options.Gap            = .2;
 Options.EdgeColor      = 'k';
 Options.EdgeWidth      = 1.5;
+% Options.GridAlpha      = .2;
 
 % Options.FrequencyFontColor = 'r';
 % Options.FrequencyFontWeight = 'bold';

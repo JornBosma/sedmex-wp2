@@ -1022,7 +1022,7 @@ function FrequencyLabels(circles,radius,angulo,escala,CenterLocation,rmin,freque
         if rmin>0
             if c>0; ha = 'right'; elseif c<0; ha = 'left';   else; ha = 'center'; end % Depending on the sign of the cosine, horizontal alignment should be one or another
             if s>0; va = 'top';   elseif s<0; va = 'bottom'; else; va = 'middle'; end % Depending on the sign of the sine  , vertical   alignment should be one or another
-            text(c*escalado(rmin*escala)+CenterLocation.X,s*escalado(rmin*escala)+CenterLocation.Y,'0%','HorizontalAlignment',ha,'verticalalignment',va,'fontsize',frequencyFontSize,'fontname',frequencyFontName,'fontsize',frequencyFontSize,'fontweight',frequencyFontWeight,'fontangle',frequencyFontAngle,'color',frequencyFontColor); % display the labels for each circle
+            text(c*escalado(rmin*escala)+CenterLocation.X-.25,s*escalado(rmin*escala)+CenterLocation.Y+.25,'0%','HorizontalAlignment',ha,'verticalalignment',va,'fontsize',frequencyFontSize,'fontname',frequencyFontName,'fontsize',frequencyFontSize,'fontweight',frequencyFontWeight,'fontangle',frequencyFontAngle,'color',frequencyFontColor); % display the labels for each circle
         end
 %     end
 end

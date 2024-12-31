@@ -589,7 +589,7 @@ markerTypes = {'o', '^', 's', 'v'};
 % colors = brewermap(length(meanDiff), 'Greys');
 colors = brewermap(length(meanDiff), 'Spectral');
 
-f5 = figure(Position=[740, 1880, 1719, 413]);
+f5 = figure(Position=[987, 1880, 1472, 413]);
 tl = tiledlayout(1,2, 'TileSpacing','compact');
 
 nexttile

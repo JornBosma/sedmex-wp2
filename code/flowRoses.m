@@ -57,8 +57,8 @@ for n = 1:length(instru)
     % z = ncread(ADVpath, 'h');
     h = ncread(ADVpath, 'd');
     Uz = ncread(ADVpath, 'umag');
-    % Ulong = ncread(ADVpath, 'ulm');
-    % Ucros = ncread(ADVpath, 'ucm');
+    Ulong = ncread(ADVpath, 'ulm');
+    Ucros = ncread(ADVpath, 'ucm');
     Udir = ncread(ADVpath, 'uang');
     Hm0 = ncread(ADVpath, 'Hm0');
     Hdir = ncread(ADVpath, 'puvdir');
@@ -92,10 +92,19 @@ for n = 1:length(instru)
     % Hm0(buried1 | buried2) = NaN;
     % Hdir(buried1 | buried2) = NaN;
 
-    TT{n} = timetable(time, z, Uz, Ud, Udir, Hm0, Hdir);
+    TT{n} = timetable(time, z, Uz, Ud, Udir, Hm0, Hdir, Ulong, Ucros);
 end
 
 clearvars t0 t info h Uz Udir Hm0 Hdir time habCVnew z Ud n hab_measured dataPath ADVpath Ulong Ucros
+
+
+%% Calculations
+crossLongRatio = nan(size(TT));
+for i = 1:length(TT)
+    crossLongRatio(i) = mean(abs(TT{i}.Ucros), 'omitmissing') / mean(abs(TT{i}.Ulong), 'omitmissing') * 100;
+end
+
+mean(crossLongRatio)
 
 
 %% Isolate the variables
@@ -138,6 +147,9 @@ Ud = collectedVariables{3};
 Udir = collectedVariables{4};
 Hm0 = collectedVariables{5};
 Hdir = collectedVariables{6};
+
+Udir = wrapTo360(Udir-180);
+Hdir = wrapTo360(Hdir-180);
 
 clearvars i commonTime variableNames numVars numTimes collectedVariables varData v TT
 

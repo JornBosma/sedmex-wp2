@@ -17,6 +17,7 @@ else
 end
 Options.LegendPosition = 'westoutside';
 Options.FreqLabelAngle = 120;
+% Options.FreqLabelAngle = 'none';
 Options.MaxFrequency   = 48;
 Options.nFreq          = 3;
 Options.nDirections    = 24;

@@ -4,7 +4,7 @@ clear
 clc
 
 [~, fontsize, cbf, ~, ~] = sedmex_init;
-% fontsize = 30; % ultra-wide screen
+% fontsize = 30/26; % ultra-wide screen
 
 dataPath = fullfile(filesep, 'Volumes', 'T7 Shield', 'DataDescriptor', 'hydrodynamics', 'ADV', filesep);
 
@@ -14,7 +14,8 @@ instruLocs = {'L1', 'L2', 'L3', 'L4', 'L5', 'L6'};
 GS_fractions = {'Mg', 'd10', 'd50', 'd90', 'Fine', 'Coarse'};
 
 % newcolors = [cbf.vermilion; cbf.blue; cbf.bluegreen; cbf.yellow; cbf.redpurp; cbf.skyblue; cbf.orange];
-newcolors = cbf.six([2, 1, 3:5, 7:end], :);
+newcolors = cbf.six;
+% newcolors = distinguishable_colors(6);
 newsymbols = {'o', 's', '^', 'd', 'v', 'p'};
 
 g = 9.81;     
@@ -316,7 +317,32 @@ end
 clearvars dataPath dt emptyData filename firstRow h H i info k lastRow n phi_c phi_w t T tau_c tau_w tau_cw theta_c10 theta_c50 theta_c90 theta_cFine theta_cCoarse theta_w10 theta_w50 theta_w90 theta_wFine theta_wCoarse theta_cw10 theta_cw50 theta_cw90 theta_cwFine theta_cwCoarse timeAxis rho_w u_z u_c h Urms emptyData firstRow lastRow z z_new z_measured nonNaNValues nonNaNIndices interpolatedValues phi_b10 phi_b50 phi_b90 phi_bFine phi_bCoarse q_b10 q_b50 q_b90 q_bFine q_bCoarse uLong_z uLong_sign uLong_frac uCross_z uCross_sign uCross_frac q_b10 q_b50 q_b90 q_bFine q_bCoarse suffix suffixes timetableName tStart tEnd time t0 habCVnew theta_cMg theta_wMg theta_cwMg phi_bMg q_bMg q_bMg locations_c locations_w qL_bMg qL_b10 qL_b50 qL_b90 qL_bFine qL_bCoarse qC_bMg qC_b10 qC_b50 qC_b90 qC_bFine qC_bCoarse
 
 
-%% Visualisation: BSS timeseries overview
+%% Visualisation: BSS timeseries overview (components)
+% q = TT_eta.L4C1VEC;
+% q(isnan(q)) = 0;
+% [up, lo] = envelope(q, 10, 'peak');
+
+neaps = [datetime('2021-09-15 15:10', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-01 14:30', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-15 15:10', 'InputFormat','uuuu-MM-dd HH:mm')];
+
+springs = [datetime('2021-09-21 09:50', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-07 10:30', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-19 08:40', 'InputFormat','uuuu-MM-dd HH:mm')];
+
+% Source: https://hemel.waarnemen.com/maan/maanfasen_2021.html
+NM = [datetime('2021-09-07 02:52', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-06 13:05', 'InputFormat','uuuu-MM-dd HH:mm')];
+
+FQ = [datetime('2021-09-13 22:39', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-13 05:25', 'InputFormat','uuuu-MM-dd HH:mm')];
+
+FM = [datetime('2021-09-21 01:55', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-20 16:57', 'InputFormat','uuuu-MM-dd HH:mm')];
+
+LQ = [datetime('2021-09-29 03:57', 'InputFormat','uuuu-MM-dd HH:mm');
+    datetime('2021-10-28 22:05', 'InputFormat','uuuu-MM-dd HH:mm')];
+
 f1 = figure('Position',[988, 1665, 1301, 628]);
 tiledlayout(3,1, 'TileSpacing','tight')
 
@@ -325,13 +351,19 @@ hold on
 for i = 1:width(TT_tau_c)
     plot(TT_tau_c.Time, TT_tau_c.(i), 'LineWidth',2)
 end
-hold off
 
 yline(mean(GS_stats.tau_cr10_McCarron), '-.', 'LineWidth',2)
 yline(mean(GS_stats.tau_cr50_McCarron), ':', 'LineWidth',2)
 yline(mean(GS_stats.tau_cr90_McCarron), '--', 'LineWidth',2)
  
-legend([instruLocs, '\tau_{cr,10}', '\tau_{cr,50}', '\tau_{cr,90}'], 'Box','on', 'Location','northoutside', 'NumColumns',9)
+scatter(NM, 2.5, 200, 'filled', 'k', 'LineWidth',1)
+scatter(FQ, 2.5, 100, '>k', 'LineWidth',1)
+scatter(FM, 2.5, 200, 'k', 'LineWidth',1)
+scatter(LQ, 2.5, 100, '<k', 'LineWidth',1)
+% plot(TT_eta.Time, up, 'k', 'LineWidth',2)
+hold off
+
+legend([instruLocs, '\tau_{cr10}', '\tau_{cr50}', '\tau_{cr90}'], 'Box','on', 'Location','northoutside', 'NumColumns',9)
 xticks(dateStart+1:days(4):dateEnd)
 xticklabels({})
 ylabel('\tau_{c} (Pa)')
@@ -350,11 +382,11 @@ yline(mean(GS_stats.tau_cr10_McCarron), '-.', 'LineWidth',2)
 yline(mean(GS_stats.tau_cr50_McCarron), ':', 'LineWidth',2)
 yline(mean(GS_stats.tau_cr90_McCarron), '--', 'LineWidth',2)
 
-% text(tEnd+hours(5), GS_stats.tau_cr10_McCarron(i), '\tau_{cr,10}', 'FontSize',fontsize*.8)
-% text(tEnd+hours(5), GS_stats.tau_cr50_McCarron(i), '\tau_{cr,50}', 'FontSize',fontsize*.8)
-% text(tEnd+hours(5), GS_stats.tau_cr90_McCarron(i), '\tau_{cr,90}', 'FontSize',fontsize*.8)
+% text(tEnd+hours(5), GS_stats.tau_cr10_McCarron(i), '\tau_{cr10}', 'FontSize',fontsize*.8)
+% text(tEnd+hours(5), GS_stats.tau_cr50_McCarron(i), '\tau_{cr50}', 'FontSize',fontsize*.8)
+% text(tEnd+hours(5), GS_stats.tau_cr90_McCarron(i), '\tau_{cr90}', 'FontSize',fontsize*.8)
 
-% lgnd = legend('', '', '', '', '', '', '\tau_{cr,10}', '\tau_{cr,50}', '\tau_{cr,90}', 'Location','northeast', 'NumColumns',3);
+% lgnd = legend('', '', '', '', '', '', '\tau_{cr10}', '\tau_{cr50}', '\tau_{cr90}', 'Location','northeast', 'NumColumns',3);
 
 xticks(dateStart+1:days(4):dateEnd)
 xticklabels({})
@@ -374,9 +406,14 @@ yline(mean(GS_stats.tau_cr10_McCarron), '-.', 'LineWidth',2)
 yline(mean(GS_stats.tau_cr50_McCarron), ':', 'LineWidth',2)
 yline(mean(GS_stats.tau_cr90_McCarron), '--', 'LineWidth',2)
 
-% text(tEnd+hours(5), GS_stats.tau_cr10_McCarron(i), '\tau_{cr,10}', 'FontSize',fontsize*.8)
-% text(tEnd+hours(5), GS_stats.tau_cr50_McCarron(i), '\tau_{cr,50}', 'FontSize',fontsize*.8)
-% text(tEnd+hours(5), GS_stats.tau_cr90_McCarron(i), '\tau_{cr,90}', 'FontSize',fontsize*.8)
+% text(tEnd+hours(5), GS_stats.tau_cr10_McCarron(i), '\tau_{cr10}', 'FontSize',fontsize*.8)
+% text(tEnd+hours(5), GS_stats.tau_cr50_McCarron(i), '\tau_{cr50}', 'FontSize',fontsize*.8)
+% text(tEnd+hours(5), GS_stats.tau_cr90_McCarron(i), '\tau_{cr90}', 'FontSize',fontsize*.8)
+
+% Add figure annotations
+annotation('textbox', [0.89, 0.768, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.89, 0.497, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.89, 0.230, 0.1, 0.1], 'String','(c)', 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
 
 colororder(f1, newcolors)
 xticks(dateStart+1:days(4):dateEnd)
@@ -552,6 +589,10 @@ for col = 1:nCols
     % Extract the current column
     data_c_col = data_c(:, col);
     data_w_col = data_w(:, col);
+    % data_c_col = data_c(nonStormIdx, col);
+    % data_w_col = data_w(nonStormIdx, col);
+    % data_c_col = data_c(stormIdx, col);
+    % data_w_col = data_w(stormIdx, col);
     
     % Create a mask for non-NaN elements and apply to arrays
     nonNaN_mask = ~isnan(data_c_col) & ~isnan(data_w_col);
@@ -628,11 +669,11 @@ for i = [1, 4, 6]
     hold off
 
     % Add region descriptions
-    text(4e-4, .6, 'waves only', 'FontSize',fontsize*.6)
-    text(.014, .6, 'wave-dominated', 'FontSize',fontsize*.6)
-    text(.6, .25, 'current-dominated', 'FontSize',fontsize*.6, 'Rotation',-90)
-    text(.6, 2e-3, 'current only', 'FontSize',fontsize*.6, 'Rotation',-90)
-    text(4e-4, 2e-4, 'no motion', 'FontSize',fontsize*.6)
+    text(4e-4, .6, '\itwaves only', 'FontSize',fontsize*.6)
+    text(.014, .6, '\itwave-dominated', 'FontSize',fontsize*.6)
+    text(.6, .25, '\itcurrent-dominated', 'FontSize',fontsize*.6, 'Rotation',-90)
+    text(.6, 2e-3, '\itcurrent only', 'FontSize',fontsize*.6, 'Rotation',-90)
+    text(4e-4, 2e-4, '\itno motion', 'FontSize',fontsize*.6)
     
     % Add region fractions
     text(8e-4, .2, [mat2str(round(percent_cond1(i)), 2), '%'], 'FontSize',fontsize*.8, 'FontWeight','bold')
@@ -659,8 +700,14 @@ for i = [1, 4, 6]
 end
 
 % Set axis properties
-xlabel(ax(2), '\theta_{c}')
+% xlabel(ax(2), '\theta_{c}')
 ylabel(ax(1), '\theta_{w}')
 yticklabels(ax(2:3), {})
+xticklabels(ax, {})
 
 clearvars data_c data_w x_cw a b c d ax j percent_cond1 percent_cond2 percent_cond3 percent_cond4 percent_cond5
+
+
+%% Calculations
+
+[percentTable.currentOnly + percentTable.currentDom, percentTable.waveOnly + percentTable.waveDom]

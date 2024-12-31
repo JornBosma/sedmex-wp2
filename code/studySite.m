@@ -155,7 +155,7 @@ gp.Scalebar.Visible = "on";
 
 
 %% Compilation
-offset2 =  0.11;
+offset2 =  0.12;
 offset3 =  0.005;
 
 f1 = figure('Position',[615, 1751, 1844, 542]);
@@ -276,6 +276,7 @@ geolimits(lat3, lon3)
 
 % Add annotations
 text(lat3(1)+0.01, lon3(1)+0.011, 'Prins Hendrikzanddijk', 'FontSize',fontsize, 'Color','w', 'Rotation',53.5)
+text(lat3(1)+0.006, lon3(1)+0.035, '\it{Texelstroom}', 'FontSize',fontsize*.8, 'Color','w', 'Rotation',45)
 
 % Define north arrow parameters
 arrowLength = 0.06; % Length of the arrow as a fraction of the figure height

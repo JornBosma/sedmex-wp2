@@ -3,10 +3,9 @@
 
 locResults = [basePath 'results' filesep];
 locOverleaf = '/Users/jorn/Library/CloudStorage/Dropbox/Apps/Overleaf/SEDMEX_WP2/figures/';
-locGC7 = '/Users/jorn/Library/CloudStorage/OneDrive-UniversiteitUtrecht/Events/UCM/Summer_2024/figs/';
 
 %% studySite
-% exportgraphics(f1, [locResults 'studySite.png'], 'Resolution',300)
+% exportgraphics(f1, [locOverleaf 'studySite.png'], 'Resolution',300)
 
 %% exSample
 % exportgraphics(f1, [locResults 'exSample.png'], 'Resolution',300)
@@ -45,7 +44,7 @@ locGC7 = '/Users/jorn/Library/CloudStorage/OneDrive-UniversiteitUtrecht/Events/U
 %     exportgraphics(f2(i), [locOverleaf 'CS_GS_time_' mat2str(i) '.png'], 'Resolution',300)
 % end
 
-% exportgraphics(f3, [locOverleaf 'CS_tidal_variation.png'], 'Resolution',300)
+% exportgraphics(f3b, [locOverleaf 'CS_tidal_variation.png'], 'Resolution',300)
 
 %% DEM
 % exportgraphics(f1, [locResults 'DEM_2022_Q1.png'], 'Resolution',300)
@@ -72,8 +71,11 @@ locGC7 = '/Users/jorn/Library/CloudStorage/OneDrive-UniversiteitUtrecht/Events/U
 % end
 
 %% ShieldsDiagram
-% exportgraphics(f1, [locResults 'BSS_components.png'], 'Resolution',300)
-% exportgraphics(f2b, [locOverleaf 'Shields_WvC_90.png'], 'Resolution',300)
+% exportgraphics(f1, [locOverleaf 'BSS_timeseries.png'], 'Resolution',300)
+% exportgraphics(f2b, [locOverleaf 'Shields_WvC.png'], 'Resolution',300)
+% exportgraphics(f2b, [locOverleaf 'Shields_WvC_Coarse.png'], 'Resolution',300)
+% exportgraphics(f2b, [locOverleaf 'Shields_WvC_C_calm.png'], 'Resolution',300)
+% exportgraphics(f2b, [locOverleaf 'Shields_WvC_C_storm.png'], 'Resolution',300)
 
 %% bedloadTransport
 % exportgraphics(f6d, [locResults 'PDFs_Fine.png'], 'Resolution',300)

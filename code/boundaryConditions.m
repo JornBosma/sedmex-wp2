@@ -192,11 +192,13 @@ end
 
 % Redraw the scatter plot and yline to ensure they are on top
 scatter(TT_L2C10.t, TT_L2C10.puvdir, 10, 'k', 'filled')
-text(datetime("04-Oct-2021"), normal_direction, " onshore", 'FontSize',fontsize*.6, 'FontWeight','bold')
-text(datetime("04-Oct-2021"), normal_direction-90 + 0, "longshore", 'FontSize',fontsize*.6, 'FontWeight','bold')
-text(datetime("04-Oct-2021"), normal_direction+90 - 0, "longshore", 'FontSize',fontsize*.6, 'FontWeight','bold')
+% text(datetime("04-Oct-2021"), normal_direction, " onshore", 'FontSize',fontsize*.6, 'FontWeight','bold')
+% text(datetime("04-Oct-2021"), normal_direction-90 + 0, "longshore", 'FontSize',fontsize*.6, 'FontWeight','bold')
+% text(datetime("04-Oct-2021"), normal_direction+90 - 0, "longshore", 'FontSize',fontsize*.6, 'FontWeight','bold')
 
-ylabel(ax(4), '\alpha_{wave} (\circN)', 'FontSize',fontsize*.8)
+yticks(ax(4), [90, 135, 180])
+yticklabels(ax(4), [90-normal_direction, 135-normal_direction, 180-normal_direction])
+ylabel(ax(4), '\alpha_{wave} (\circ)', 'FontSize',fontsize*.8)
 
 ax(5) = nexttile;
 plot(TT_L2C10.t, TT_L2C10.ulm, 'Color','k', 'LineWidth',3); hold on
@@ -204,23 +206,24 @@ plot(TT_L2C10.t, TT_L2C10.ucm, 'Color','r', 'LineWidth',3); hold off
 ylabel('U (m s^{-1})', 'FontSize',fontsize*.8)
 lgd5 = legend('longshore', 'cross-shore', 'Position',[0.1250, 0.5140, 0.1864, 0.0240],...
     'NumColumns',2, 'FontSize',fontsize*.6);
-text(SEDMEXtime(2)+hours(4), .3, 'NE', 'FontSize',fontsize*.6, 'FontWeight','bold')
-text(SEDMEXtime(2)+hours(4), -.3, 'SW', 'FontSize',fontsize*.6, 'FontWeight','bold')
-text(SEDMEXtime(2)-hours(9), .1, 'onshore', 'FontSize',fontsize*.6, 'Color','r', 'FontWeight','bold')
-text(SEDMEXtime(2)-hours(9), -.1, 'offshore', 'FontSize',fontsize*.6, 'Color','r', 'FontWeight','bold')
+% text(SEDMEXtime(2)+hours(4), .3, 'NE', 'FontSize',fontsize*.6, 'FontWeight','bold')
+% text(SEDMEXtime(2)+hours(4), -.3, 'SW', 'FontSize',fontsize*.6, 'FontWeight','bold')
+% text(SEDMEXtime(2)-hours(9), .1, 'onshore', 'FontSize',fontsize*.6, 'Color','r', 'FontWeight','bold')
+% text(SEDMEXtime(2)-hours(9), -.1, 'offshore', 'FontSize',fontsize*.6, 'Color','r', 'FontWeight','bold')
 
 ax(6) = nexttile;
-plot(TTmw.DateTime, TTmw.eta, 'Color','k', 'LineWidth',3); hold on
-plot(TTmhw.DateTime, TTmhw.eta, 'Color','r', 'LineWidth',3)
-plot(TTmlw.DateTime, TTmlw.eta, 'Color','k', 'LineWidth',3); hold off
+% plot(TTmw.DateTime, TTmw.eta, 'Color','k', 'LineWidth',3); hold on
+% plot(TTmhw.DateTime, TTmhw.eta, 'Color','r', 'LineWidth',3)
+% plot(TTmlw.DateTime, TTmlw.eta, 'Color','k', 'LineWidth',3); hold off
+plot(TTwater.DateTime, TTwater.eta, 'Color','k', 'LineWidth',3); hold on
 ylabel('η (NAP+m)', 'FontSize',fontsize*.8)
 
 yline(SEDMEX.MeanHW, '--', 'LineWidth',3)
 yline(SEDMEX.MeanLW, '--', 'LineWidth',3)
 % yline(SEDMEX.MeanHW, '--', 'MHW', 'LineWidth',3, 'FontSize',fontsize*.8)
 % yline(SEDMEX.MeanLW, '--', 'MLW', 'LineWidth',3, 'FontSize',fontsize*.8, 'LabelVerticalAlignment','bottom')
-text(SEDMEXtime(2)+hours(4),SEDMEX.MeanHW, 'MHW', 'FontSize',fontsize*.6, 'FontWeight','bold')
-text(SEDMEXtime(2)+hours(4),SEDMEX.MeanLW, 'MLW', 'FontSize',fontsize*.6, 'FontWeight','bold')
+text(SEDMEXtime(2)+hours(4),SEDMEX.MeanHW, 'MHW', 'FontSize',fontsize*.6, 'FontWeight','normal')
+text(SEDMEXtime(2)+hours(4),SEDMEX.MeanLW, 'MLW', 'FontSize',fontsize*.6, 'FontWeight','normal')
 
 xlim([ax(3) ax(4) ax(5) ax(6)], [SEDMEXtime(1), SEDMEXtime(2)])
 xticks([ax(3) ax(4) ax(5) ax(6)], SEDMEXtime(1):days(2):SEDMEXtime(2))

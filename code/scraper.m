@@ -57,6 +57,7 @@ Mg_mean = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
     MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
 Mg_std = std([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
     MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
+Mg_rel = Mg_std./Mg_mean;
 
 
 %% Visualisation: pcolor
@@ -124,35 +125,6 @@ set(ax, 'Colormap', brewermap([],"YlOrRd"), 'CLim',[0.4 1.6])
 % end
 
 
-%% Additional calculations
-depth = -depth_mm(2:end);
-stat = HW07(1:end-1);
-
-% Visualise
-% figure
-% plot(depth, stat)
-% xlabel('depth (mm)')
-% ylabel('M_{G} (mm)')
-
-% Calculate mean
-mean_stat = mean(stat);
-
-% Calculate standard deviation (variation)
-std_stat = std(stat);
-
-% Calculate variance
-variance_stat = var(stat);
-
-% Calculate interquartile range (IQR)
-iqr_stat = iqr(stat);
-
-% Display results
-fprintf('Mean of stat: %.3f mm\n', mean_stat);
-fprintf('Standard deviation of stat: %.3f mm\n', std_stat);
-fprintf('Variance of stat: %.3f mm^2\n', variance_stat);
-fprintf('Interquartile range (IQR) of stat: %.3f mm\n', iqr_stat);
-
-
 %% Modify data arrays (Sorting)
 
 % 7 October
@@ -186,6 +158,7 @@ Sg_mean = mean([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
     MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
 Sg_std = std([HW07(1:end-1), MW07(1:end-1), LW07(1:end-1), HW15(1:end-1),...
     MW15(1:end-1), LW15(1:end-1), bar15(1:end-1), runnel15(1:end-1)], 'omitmissing');
+Sg_rel = Sg_std./Sg_mean;
 
 
 %% Visualisation: pcolor

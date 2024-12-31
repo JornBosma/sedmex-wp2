@@ -69,7 +69,23 @@ cbf.grey = [0.5, 0.5, 0.5];
 % numColors = size(cmap, 1);
 % indices = round(linspace(1, numColors, 6));
 % cbf.six = cmap(indices, :);
-cbf.six = brewermap(9, 'Set1');
+% cbf.six = brewermap(9, 'Set1');
+% cbf.six = [
+%     0.0000, 0.4470, 0.7410;  % Blue
+%     0.8500, 0.3250, 0.0980;  % Orange
+%     0.9290, 0.6940, 0.1250;  % Yellow
+%     0.4940, 0.1840, 0.5560;  % Purple
+%     0.4660, 0.6740, 0.1880;  % Green
+%     0.3010, 0.7450, 0.9330;  % Cyan
+% ];
+cbf.six = [
+    0.0000, 0.4470, 0.7410;  % Blue
+    0.8500, 0.3250, 0.0980;  % Orange
+    1.0000, 0.8276, 0.0000;  % Yellow
+    0.4940, 0.1840, 0.5560;  % Purple
+    0.4660, 0.6740, 0.1880;  % Green
+    0.1000, 0.9000, 1.0000;  % Cyan
+];
 
 % tidal datums wrt NAP @ PHZ (waterinfo)
 % PHZ.NAP = 0; % local reference datum [NAP+m]

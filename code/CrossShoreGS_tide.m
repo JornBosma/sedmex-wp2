@@ -592,12 +592,89 @@ tidalVariation_S(3, :) = NaN;
 clearvars i j k ax_right ax_left axs dry sampleTimes waterLevels sampleHeight targetDate dailyData
 
 
+%% Check for co-variation
+% If a p-value is below 0.05, the corresponding correlation coefficient is statistically significant.
+% If above 0.05, the result is not statistically significant, and the observed correlation could be due to random chance.
+
+n = [1, 2, 4, 5];
+tideVar_M = tidalVariation_M(n, :);
+tideVar_S = tidalVariation_S(n, :);
+
+% Preallocate for storing results
+numLocations = size(tideVar_M, 2); % Number of columns
+correlationCoeffs = zeros(1, numLocations);
+pValues = zeros(1, numLocations);
+
+% Compute correlation and p-values for each column pair
+for i = 1:numLocations
+    [correlationCoeffs(i), pValues(i)] = corr(tideVar_M(:, i), tideVar_S(:, i), 'Rows', 'complete');
+end
+
+% Display results
+disp('Correlation coefficients for each location:');
+disp(correlationCoeffs);
+disp('P-values for each location:');
+disp(pValues);
+
+clearvars numLocations
+
+
+%% Visualisation: tidal variation per location
+f3 = figure(Position=[740, 1838, 1458, 455]);
+tiledlayout(2, 5, 'TileSpacing','compact')
+
+nexttile(1, [1, 3])
+hold on
+plot(xpos, tideVar_M', 'o-', 'LineWidth',2)
+colororder(surveyColours([2, 3, 8, 9], :))
+plot(xpos, mean(tideVar_M, 'omitmissing'), 'r', 'LineWidth',4)
+% plot(xpos, median(tideVar_M, 'omitmissing'), ':r', 'LineWidth',4)
+hold off
+
+ylabel('σ_{tide,M_G} (mm)')
+
+xlim([xpos(1)-1, xpos(end)+1])
+xticks(xpos)
+xticklabels('')
+grid on
+
+legend([cellstr(string(samplingDates(n), 'dd-MMM')); 'mean'], 'Location', 'northeastoutside')
+
+nexttile(6, [1, 3])
+hold on
+plot(xpos, tideVar_S', 'o-', 'LineWidth',2)
+plot(xpos, mean(tideVar_S, 'omitmissing'), 'r', 'LineWidth',4)
+% plot(xpos, median(tideVar_S, 'omitmissing'), ':r', 'LineWidth',4)
+hold off
+
+ylabel('σ_{tide,σ_{G}}')
+
+xlim([xpos(1)-1, xpos(end)+1])
+xticks(xpos)
+xticklabels(sampleIDs)
+grid on
+
+annotation('textbox', [0.49, 0.815, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.49, 0.375, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.895, 0.815, 0.1, 0.1], 'String','(c)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+
+nexttile(4, [2,2])
+bar(correlationCoeffs)
+% xticks(xpos)
+xticklabels(sampleIDs)
+ylabel('r')
+grid on
+
+
+% clearvars tideVar_M tideVar_S n
+
+
 %% Visualisation: tidal variation per location
 n = [1, 2, 4, 5];
 tideVar_M = tidalVariation_M(n, :);
 tideVar_S = tidalVariation_S(n, :);
 
-f3 = figure(Position=[740, 1813, 936, 480]);
+f3b = figure(Position=[740, 1813, 936, 480]);
 tiledlayout(2, 1, 'TileSpacing','compact')
 
 nexttile
@@ -605,26 +682,26 @@ hold on
 plot(xpos, tideVar_M', 'o-', 'LineWidth',2)
 colororder(surveyColours([2, 3, 8, 9], :))
 plot(xpos, mean(tideVar_M, 'omitmissing'), 'r', 'LineWidth',4)
-plot(xpos, median(tideVar_M, 'omitmissing'), ':r', 'LineWidth',4)
+% plot(xpos, median(tideVar_M, 'omitmissing'), ':r', 'LineWidth',4)
 hold off
 
-ylabel('σ_{tide} (M_G)')
+ylabel('σ_{tide,M_G} (mm)')
 
 xlim([xpos(1)-1, xpos(end)+1])
 xticks(xpos)
 xticklabels('')
 grid on
 
-legend([cellstr(string(samplingDates(n), 'dd-MMM')); 'mean'; 'median'], 'Location', 'northeastoutside')
+legend([cellstr(string(samplingDates(n), 'dd-MMM')); 'mean'], 'Location', 'northeastoutside')
 
 nexttile
 hold on
 plot(xpos, tideVar_S', 'o-', 'LineWidth',2)
 plot(xpos, mean(tideVar_S, 'omitmissing'), 'r', 'LineWidth',4)
-plot(xpos, median(tideVar_S, 'omitmissing'), ':r', 'LineWidth',4)
+% plot(xpos, median(tideVar_S, 'omitmissing'), ':r', 'LineWidth',4)
 hold off
 
-ylabel('σ_{tide} (σ_{G})')
+ylabel('σ_{tide,σ_{G}}')
 
 xlim([xpos(1)-1, xpos(end)+1])
 xticks(xpos)
@@ -660,8 +737,8 @@ Sg_mean = mean([S_S1_20Sep, S_S1_28Sep, S_S1_07Oct, S_S2_07Oct]);
 Sg_std = std([S_S1_20Sep, S_S1_28Sep, S_S1_07Oct, S_S2_07Oct]);
 
 % Display bulk stats
-mean(Mg_std)
+mean(Mg_mean([1,2,4]))
 mean(Mg_std([1,2,4]))
 
-mean(Sg_std)
+mean(Sg_mean([1,2,4]))
 mean(Sg_std([1,2,4]))

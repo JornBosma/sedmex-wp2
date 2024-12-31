@@ -14,8 +14,8 @@ instruLocs = {'L1', 'L2', 'L3', 'L4', 'L5', 'L6'};
 GS_fractions = {'Mg', 'd10', 'd50', 'd90', 'Fine', 'Coarse'};
 GS_headers = {'M_G', 'D_{10}', 'D_{50}', 'D_{90}', '0.25', '2.00'};
 
-% newcolors = [cbf.vermilion; cbf.blue; cbf.bluegreen; cbf.yellow; cbf.redpurp; cbf.skyblue; cbf.orange];
-newcolors = cbf.six([2, 1, 3:5, 7:end], :);
+newcolors = cbf.six;
+% newcolors = distinguishable_colors(6);
 newsymbols = {'o', 's', '^', 'd', 'v', 'p'};
 
 g = 9.81;     
@@ -143,7 +143,7 @@ suffixes = {'tau_c', 'tau_w', 'tau_cw', ...
     'theta_cMg', 'theta_wMg', 'theta_cwMg', 'phi_bMg', 'q_bMg', ...
     'theta_cFine', 'theta_wFine', 'theta_cwFine', 'phi_bFine', 'q_bFine', ...
     'theta_cCoarse', 'theta_wCoarse', 'theta_cwCoarse', 'phi_bCoarse', 'q_bCoarse', ...
-    'long_sign', 'long_frac','cross_sign', 'cross_frac', 'U'};
+    'long_sign', 'long_frac','cross_sign', 'cross_frac', 'U', 'eta'};
 
 % Create a timetable for each suffix and assign variable names
 for i = 1:length(suffixes)
@@ -170,12 +170,13 @@ filename = [dataPath char(instruments(i)) filesep 'tailored_' char(instruments(i
     % counterclockwise from east, and positive alongshore direction is
     % ~225◦ counterclockwise from east.
     uLong_sign = -uLong_sign;           % reverse the sign so that NE (flood) is positive
-    uLong_sign(isnan(uLong_sign)) = 0; % NaN -> 0
+    uLong_sign(isnan(uLong_sign)) = 0;  % NaN -> 0
 
     uCross_z = ncread(filename, 'ucm');  % cross-shore flow velocity [m/s] at depth z
     uCross_sign = sign(uCross_z);        % direction sign of cross-shore current
     uCross_sign(isnan(uCross_sign)) = 0; % NaN -> 0
 
+    eta = ncread(filename, 'zs');       % water-level elevation [NAP+m]
     u_z = ncread(filename, 'umag');     % flow velocity [m/s] at depth z
     % z = ncread(filename, 'h');          % height above the bed [m]
     H = ncread(filename, 'Hm0');        % significant wave height [m]
@@ -218,6 +219,7 @@ filename = [dataPath char(instruments(i)) filesep 'tailored_' char(instruments(i
     lastRow = find(TT_tau_c.Time == tEnd);
 
     TT_U.(i)(firstRow:lastRow) = u_c;
+    TT_eta.(i)(firstRow:lastRow) = eta;
 
     TT_long_sign.(i)(firstRow:lastRow) = uLong_sign;
     TT_long_frac.(i)(firstRow:lastRow) = uLong_frac;
@@ -1362,7 +1364,7 @@ d10d90_ratio = d10./d90;
 d10d90_ratio = [d10d90_ratio; mean(d10d90_ratio)];
 totalBedload_netL.d10d90 = d10d90_ratio;
 
-stop
+
 clearvars Mg d10 d50 d90 Fine Coarse i meanCol meanRow time_seconds Mg_neg d10_neg d50_neg d90_neg Fine_neg Coarse_neg Mg_pos d10_pos d50_pos d90_pos Fine_pos Coarse_pos neg_tt_bMg neg_tt_b10 neg_tt_b50 neg_tt_b90 neg_tt_bFine neg_tt_bCoarse pos_tt_bMg pos_tt_b10 pos_tt_b50 pos_tt_b90 pos_tt_bFine pos_tt_bCoarse data_Mg data_10 data_50 data_90 data_Fine data_Coarse
 
 
@@ -2036,9 +2038,9 @@ clearvars data xi f i numPoints bw gaussianWindowSize smoothed_f max_f max_index
 numPoints = 2e3; % Increase this value for higher resolution
 
 f6f = figure('Position',[740, 1665, 1719, 628]);
-tiledlayout(1,3, "TileSpacing","tight")
+tiledlayout(1,3, "TileSpacing","compact")
 
-nexttile; hold on
+nexttile(3); hold on
 % Loop through each location to create KDE plots
 for i = 1:length(instruLocs)
 
@@ -2058,10 +2060,9 @@ legend('show', 'Location','east')
 
 % Add title, labels and legend
 xlabel('\tau_{cw} (Pa)')
-ylabel('density')
-yticklabels({})
+% yticklabels({})
 
-nexttile; hold on
+nexttile(1); hold on
 % Loop through each location to create KDE plots
 for i = 1:length(instruLocs)
 
@@ -2083,13 +2084,14 @@ for i = 1:length(instruLocs)
 end
 hold off
 axis tight
-xlim([-.5e-5, .5e-5])
+xlim([-.6e-5, 1.2e-5])
 
 % Add title, labels and legend
 xlabel('q_{bL,Fine} (m^2 s^{-1})')
-yticklabels({})
+% yticklabels({})
+ylabel('density')
 
-nexttile; hold on
+nexttile(2); hold on
 % Loop through each location to create KDE plots
 for i = 1:length(instruLocs)
 
@@ -2111,20 +2113,20 @@ for i = 1:length(instruLocs)
 end
 hold off
 axis tight
-xlim([-.5e-5, .5e-5])
+xlim([-.6e-5, 1.2e-5])
 
 % Add title, labels and legend
 xlabel('q_{bL,Coarse} (m^2 s^{-1})')
-yticklabels({})
+% yticklabels({})
 
 % Add figure annotations
-annotation('textbox', [0.305, 0.8, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
-annotation('textbox', [0.605, 0.8, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
-annotation('textbox', [0.905, 0.8, 0.1, 0.1], 'String','(c)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
-annotation('textbox', [0.69-.3, 0.6, 0.1, 0.1], 'String',{'SW (ebb)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
-annotation('textbox', [0.84-.3, 0.6, 0.1, 0.1], 'String',{'NE (flood)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
-annotation('textbox', [0.69, 0.6, 0.1, 0.1], 'String',{'SW (ebb)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
-annotation('textbox', [0.84, 0.6, 0.1, 0.1], 'String',{'NE (flood)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','bold');
+annotation('textbox', [0.294, 0.81, 0.1, 0.1], 'String','(a)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.600, 0.81, 0.1, 0.1], 'String','(b)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.905, 0.81, 0.1, 0.1], 'String','(c)', 'EdgeColor','none', 'FontSize',fontsize, 'FontWeight','bold');
+annotation('textbox', [0.375, 0.6, 0.1, 0.1], 'String',{'\itSW (ebb)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal');
+annotation('textbox', [0.475, 0.6, 0.1, 0.1], 'String',{'\itNE (flood)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal');
+annotation('textbox', [0.070, 0.6, 0.1, 0.1], 'String',{'\itSW (ebb)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal');
+annotation('textbox', [0.165, 0.6, 0.1, 0.1], 'String',{'\itNE (flood)'; 'direction'}, 'EdgeColor','none', 'FontSize',fontsize*.8, 'FontWeight','normal');
 
 clearvars data xi f i numPoints bw gaussianWindowSize smoothed_f max_f max_index peak_location meanValue
 

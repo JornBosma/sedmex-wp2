@@ -64,20 +64,6 @@ cbf.custom12 = ...
     0.121568627450980	0.470588235294118	0.705882352941177; ...
     0.200000000000000	0.627450980392157	0.172549019607843];
 cbf.grey = [0.5, 0.5, 0.5];
-% cmap = crameri('batlowK');
-% % cmap = brewermap(256, 'RdYlBu');
-% numColors = size(cmap, 1);
-% indices = round(linspace(1, numColors, 6));
-% cbf.six = cmap(indices, :);
-% cbf.six = brewermap(9, 'Set1');
-% cbf.six = [
-%     0.0000, 0.4470, 0.7410;  % Blue
-%     0.8500, 0.3250, 0.0980;  % Orange
-%     0.9290, 0.6940, 0.1250;  % Yellow
-%     0.4940, 0.1840, 0.5560;  % Purple
-%     0.4660, 0.6740, 0.1880;  % Green
-%     0.3010, 0.7450, 0.9330;  % Cyan
-% ];
 cbf.six = [
     0.0000, 0.4470, 0.7410;  % Blue
     0.8500, 0.3250, 0.0980;  % Orange
@@ -122,18 +108,6 @@ PHZ.xTick = 114000:1e3:118000;
 PHZ.yTick = 558000:1e3:561000;
 PHZ.xLimHook = [116950, 117650]; % spit hook zoom-in
 PHZ.yLimHook = [559760, 560400];
-
-% tidal datums during SEDMEX: Woerdman et al., 2022
-% SEDMEX.MHW = 0.68; % mean high water [NAP+m]
-% SEDMEX.MLW = -0.57; % mean low water [NAP+m]
-% SEDMEX.MWL = 0.16; % mean water level [NAP+m]
-% SEDMEX.MaxWL = 1.34; % maximum water level [NAP+m]
-% SEDMEX.MinWL = -1.07; % minimum water level [NAP+m]
-% SEDMEX.MSTR = 1.77; % mean spring tidal range [NAP+m]
-% SEDMEX.MNTR = 0.92; % mean neap tidal range [NAP+m]
-% SEDMEX.MTR = 1.25; % mean tidal range [NAP+m]
-% SEDMEX.MaxTR = 1.82; % maximum tidal range [NAP+m]
-% SEDMEX.MinTR = 0.55; % minimum tidal range [NAP+m]
 
 % tidal datums during SEDMEX
 SEDMEX.MeanHW = 0.684; % mean high water [NAP+m]

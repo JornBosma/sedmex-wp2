@@ -7,11 +7,11 @@
 # exclude macOS-specific file
 .DS_Store
 
-# exclude data and results from source control by default
+# exclude data, results and uninteresting code from source control by default
 /dataRaw/*
-/data/*
+/data/hidden/*
 /results/*
-/results_old/*
+/code/misc/*
 
 # keep unfinished written material out of public sight
 /docs/manuscript/*

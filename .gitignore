@@ -6,7 +6,6 @@
 
 # exclude macOS-specific file
 .DS_Store
-.gitignore
 
 # exclude data, results and uninteresting code from source control by default
 /dataRaw/*
